@@ -4,6 +4,12 @@ from fastapi.responses import FileResponse
 from database import engine,Base
 from api import *
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+APP_HOST = os.getenv("APP_HOST", "0.0.0.0")
+APP_PORT = int(os.getenv("APP_PORT", "8000"))
 
 #删除所有表
 # Base.metadata.drop_all(bind=engine)
@@ -60,4 +66,4 @@ async def page_student2():
 
 if __name__ == '__main__':
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host=APP_HOST, port=APP_PORT)

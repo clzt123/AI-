@@ -1,20 +1,27 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
-#连接数据库
-SQL_URL = "mysql+pymysql://root:123456@localhost/student"
-# 创建数据库引擎
-engine = create_engine(SQL_URL,pool_size=5)
+import os
+from dotenv import load_dotenv
 
-# 得到Base基类，写数据库表类必须继承它
+load_dotenv()
+
+DB_USER = os.getenv("DB_USER", "root")
+DB_PASSWORD = os.getenv("DB_PASSWORD", "123456")
+DB_HOST = os.getenv("DB_HOST", "localhost")
+DB_NAME = os.getenv("DB_NAME", "student")
+DB_POOL_SIZE = int(os.getenv("DB_POOL_SIZE", "5"))
+
+SQL_URL = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}"
+
+engine = create_engine(SQL_URL, pool_size=DB_POOL_SIZE)
+
 Base = declarative_base()
-#创建会话工厂
+
 Session_local = sessionmaker(bind=engine)
 
-# 数据库会话生成函数
 def get_db():
     db = Session_local()
     try:
-        yield db #生成器函数，专门用于fastapi依赖注入（每次请求产生一个会话，用完自动关闭）
+        yield db
     finally:
-        db.close()   #用完就关
-
+        db.close()
