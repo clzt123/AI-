@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>班级管理</title>
+    <link rel="stylesheet" href="/static/css/common.css">
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <h2>学生管理系统</h2>
+            <ul>
+                <li><a href="/">首页</a></li>
+                <li><a href="/pages/student/">学生管理</a></li>
+                <li><a href="/pages/score/">成绩管理</a></li>
+                <li><a href="/pages/employment/">就业模块</a></li>
+                <li><a href="/pages/employment2/">学生就业管理</a></li>
+                <li><a href="/pages/teacher/">老师管理</a></li>
+                <li><a href="/pages/class/" class="active">班级管理</a></li>
+                <li><a href="/pages/student2/">学生管理2</a></li>
+            </ul>
+        </div>
+        <div class="main-content">
+            <div class="header">
+                <h1>班级管理</h1>
+            </div>
+            <div class="content-card">
+                <div class="search-bar">
+                    <button class="btn btn-success" onclick="openAddModal()">新增班级</button>
+                    <button class="btn btn-info" onclick="loadMonthStats()">月度统计</button>
+                    <button class="btn btn-secondary" onclick="openRestoreModal()">恢复删除</button>
+                    <div class="form-group">
+                        <label>老师ID</label>
+                        <input type="number" id="search_lecturer_id" placeholder="请输入授课老师ID">
+                    </div>
+                    <button class="btn btn-warning" onclick="searchByLecturer()">查询授课班级</button>
+                </div>
+                <table id="class_table">
+                    <thead>
+                        <tr>
+                            <th>班级ID</th>
+                            <th>班级名称</th>
+                            <th>开班时间</th>
+                            <th>班主任ID</th>
+                            <th>授课老师ID</th>
+                            <th>创建时间</th>
+                            <th>更新时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="class_tbody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="class_modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal_title">新增班级</h3>
+                <button class="modal-close" onclick="closeModal('class_modal')">&times;</button>
+            </div>
+            <form id="class_form">
+                <input type="hidden" id="class_id">
+                <div class="form-group">
+                    <label>班级名称 *</label>
+                    <input type="text" id="form_class_name" required>
+                </div>
+                <div class="form-group">
+                    <label>开班时间</label>
+                    <input type="date" id="form_start_time">
+                </div>
+                <div class="form-group">
+                    <label>班主任ID</label>
+                    <input type="number" id="form_head_teacher_id">
+                </div>
+                <div class="form-group">
+                    <label>授课老师ID</label>
+                    <input type="number" id="form_lecturer_id">
+                </div>
+            </form>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('class_modal')">取消</button>
+                <button class="btn btn-primary" onclick="saveClass()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="stats_modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="stats_title">月度统计</h3>
+                <button class="modal-close" onclick="closeModal('stats_modal')">&times;</button>
+            </div>
+            <div class="search-bar">
+                <div class="form-group">
+                    <label>月份 (格式: YYYY-MM)</label>
+                    <input type="month" id="stats_month">
+                </div>
+                <button class="btn btn-primary" onclick="fetchMonthStats()">查询</button>
+            </div>
+            <div id="stats_content"></div>
+        </div>
+    </div>
+
+    <div class="modal" id="restore_modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>恢复已删除班级</h3>
+                <button class="modal-close" onclick="closeModal('restore_modal')">&times;</button>
+            </div>
+            <form id="restore_form">
+                <div class="form-group">
+                    <label>班级ID</label>
+                    <input type="number" id="restore_class_id" placeholder="请输入班级ID">
+                </div>
+            </form>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('restore_modal')">取消</button>
+                <button class="btn btn-primary" onclick="restoreClassById()">恢复</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/api.js?v=4"></script>
+    <script src="/static/js/common.js?v=4"></script>
+    <script src="/static/pages/class/js/class.js?v=4"></script>
+</body>
+</html>

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>老师管理</title>
+    <link rel="stylesheet" href="/static/css/common.css">
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <h2>学生管理系统</h2>
+            <ul>
+                <li><a href="/">首页</a></li>
+                <li><a href="/pages/student/">学生管理</a></li>
+                <li><a href="/pages/score/">成绩管理</a></li>
+                <li><a href="/pages/employment/">就业模块</a></li>
+                <li><a href="/pages/employment2/">学生就业管理</a></li>
+                <li><a href="/pages/teacher/" class="active">老师管理</a></li>
+                <li><a href="/pages/class/">班级管理</a></li>
+                <li><a href="/pages/student2/">学生管理2</a></li>
+            </ul>
+        </div>
+        <div class="main-content">
+            <div class="header">
+                <h1>老师管理</h1>
+            </div>
+            <div class="content-card">
+                <div class="search-bar">
+                    <div class="form-group">
+                        <label>老师姓名</label>
+                        <input type="text" id="search_name" placeholder="请输入老师姓名">
+                    </div>
+                    <div class="form-group">
+                        <label>性别</label>
+                        <select id="search_gender">
+                            <option value="">全部</option>
+                            <option value="男">男</option>
+                            <option value="女">女</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" onclick="searchTeachers()">查询</button>
+                    <button class="btn btn-success" onclick="openAddModal()">新增老师</button>
+                    <button class="btn btn-info" onclick="loadDeletedTeachers()">已删除老师</button>
+                    <button class="btn btn-warning" onclick="loadStats()">性别统计</button>
+                </div>
+                <table id="teacher_table">
+                    <thead>
+                        <tr>
+                            <th>老师ID</th>
+                            <th>姓名</th>
+                            <th>性别</th>
+                            <th>电话</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="teacher_tbody"></tbody>
+                </table>
+                <div class="pagination" id="pagination"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="teacher_modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal_title">新增老师</h3>
+                <button class="modal-close" onclick="closeModal('teacher_modal')">&times;</button>
+            </div>
+            <form id="teacher_form">
+                <input type="hidden" id="teacher_id">
+                <div class="form-group">
+                    <label>姓名 * (2-10个字符)</label>
+                    <input type="text" id="form_teacher_name" required minlength="2" maxlength="10">
+                </div>
+                <div class="form-group">
+                    <label>性别</label>
+                    <select id="form_gender">
+                        <option value="">请选择</option>
+                        <option value="男">男</option>
+                        <option value="女">女</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>电话</label>
+                    <input type="text" id="form_phone">
+                </div>
+            </form>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('teacher_modal')">取消</button>
+                <button class="btn btn-primary" onclick="saveTeacher()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="deleted_modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>已删除老师</h3>
+                <button class="modal-close" onclick="closeModal('deleted_modal')">&times;</button>
+            </div>
+            <table id="deleted_table">
+                <thead>
+                    <tr>
+                        <th>老师ID</th>
+                        <th>姓名</th>
+                        <th>性别</th>
+                        <th>电话</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="deleted_tbody"></tbody>
+            </table>
+            <div class="pagination" id="deleted_pagination"></div>
+        </div>
+    </div>
+
+    <div class="modal" id="stats_modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>老师性别统计</h3>
+                <button class="modal-close" onclick="closeModal('stats_modal')">&times;</button>
+            </div>
+            <div id="stats_content"></div>
+        </div>
+    </div>
+
+    <script src="/static/js/api.js?v=2"></script>
+    <script src="/static/js/common.js?v=2"></script>
+    <script src="/static/pages/teacher/js/teacher.js?v=2"></script>
+</body>
+</html>

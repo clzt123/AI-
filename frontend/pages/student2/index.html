@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学生管理2</title>
+    <link rel="stylesheet" href="/static/css/common.css">
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <h2>学生管理系统</h2>
+            <ul>
+                <li><a href="/">首页</a></li>
+                <li><a href="/pages/student/">学生管理</a></li>
+                <li><a href="/pages/score/">成绩管理</a></li>
+                <li><a href="/pages/employment/">就业模块</a></li>
+                <li><a href="/pages/employment2/">学生就业管理</a></li>
+                <li><a href="/pages/teacher/">老师管理</a></li>
+                <li><a href="/pages/class/">班级管理</a></li>
+                <li><a href="/pages/student2/" class="active">学生管理2</a></li>
+            </ul>
+        </div>
+        <div class="main-content">
+            <div class="header">
+                <h1>学生管理2</h1>
+            </div>
+            <div class="content-card">
+                <div class="search-bar">
+                    <div class="form-group">
+                        <label>学生ID</label>
+                        <input type="number" id="search_student_id" placeholder="请输入学生ID">
+                    </div>
+                    <button class="btn btn-primary" onclick="searchStudent()">查询单个</button>
+                    <button class="btn btn-success" onclick="openAddModal()">新增学生</button>
+                    <button class="btn btn-secondary" onclick="openRestoreModal()">恢复删除</button>
+                </div>
+                <table id="student_table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>学号</th>
+                            <th>姓名</th>
+                            <th>性别</th>
+                            <th>年龄</th>
+                            <th>班级ID</th>
+                            <th>籍贯</th>
+                            <th>毕业院校</th>
+                            <th>专业</th>
+                            <th>学历</th>
+                            <th>入学时间</th>
+                            <th>毕业时间</th>
+                            <th>顾问ID</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="student_tbody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="student_modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal_title">新增学生</h3>
+                <button class="modal-close" onclick="closeModal('student_modal')">&times;</button>
+            </div>
+            <form id="student_form">
+                <input type="hidden" id="student_id">
+                <div class="form-group">
+                    <label>学生编号 *</label>
+                    <input type="text" id="form_student_no" required>
+                </div>
+                <div class="form-group">
+                    <label>班级ID *</label>
+                    <input type="number" id="form_class_id" required>
+                </div>
+                <div class="form-group">
+                    <label>学生姓名 *</label>
+                    <input type="text" id="form_student_name" required>
+                </div>
+                <div class="form-group">
+                    <label>性别</label>
+                    <select id="form_gender">
+                        <option value="">请选择</option>
+                        <option value="男">男</option>
+                        <option value="女">女</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>年龄</label>
+                    <input type="number" id="form_age">
+                </div>
+                <div class="form-group">
+                    <label>籍贯</label>
+                    <input type="text" id="form_native_place">
+                </div>
+                <div class="form-group">
+                    <label>毕业院校</label>
+                    <input type="text" id="form_graduate_school">
+                </div>
+                <div class="form-group">
+                    <label>专业</label>
+                    <input type="text" id="form_major">
+                </div>
+                <div class="form-group">
+                    <label>学历</label>
+                    <input type="text" id="form_education">
+                </div>
+                <div class="form-group">
+                    <label>入学时间</label>
+                    <input type="date" id="form_admission_time">
+                </div>
+                <div class="form-group">
+                    <label>毕业时间</label>
+                    <input type="date" id="form_graduate_time">
+                </div>
+                <div class="form-group">
+                    <label>顾问ID</label>
+                    <input type="number" id="form_advisor_id">
+                </div>
+            </form>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('student_modal')">取消</button>
+                <button class="btn btn-primary" onclick="saveStudent()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="restore_modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>恢复已删除学生</h3>
+                <button class="modal-close" onclick="closeModal('restore_modal')">&times;</button>
+            </div>
+            <form id="restore_form">
+                <div class="form-group">
+                    <label>学生ID</label>
+                    <input type="number" id="restore_student_id" placeholder="请输入学生ID">
+                </div>
+            </form>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('restore_modal')">取消</button>
+                <button class="btn btn-primary" onclick="restoreStudentById()">恢复</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/api.js?v=5"></script>
+    <script src="/static/js/common.js?v=5"></script>
+    <script src="/static/pages/student2/js/student2.js?v=5"></script>
+</body>
+</html>

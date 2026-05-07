@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>成绩管理</title>
+    <link rel="stylesheet" href="/static/css/common.css">
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <h2>学生管理系统</h2>
+            <ul>
+                <li><a href="/">首页</a></li>
+                <li><a href="/pages/student/">学生管理</a></li>
+                <li><a href="/pages/score/" class="active">成绩管理</a></li>
+                <li><a href="/pages/employment/">就业模块</a></li>
+                <li><a href="/pages/employment2/">学生就业管理</a></li>
+                <li><a href="/pages/teacher/">老师管理</a></li>
+                <li><a href="/pages/class/">班级管理</a></li>
+                <li><a href="/pages/student2/">学生管理2</a></li>
+            </ul>
+        </div>
+        <div class="main-content">
+            <div class="header">
+                <h1>成绩管理</h1>
+            </div>
+            <div class="content-card">
+                <div class="search-bar">
+                    <div class="form-group">
+                        <label>成绩ID</label>
+                        <input type="number" id="search_id" placeholder="请输入成绩ID">
+                    </div>
+                    <div class="form-group">
+                        <label>学号</label>
+                        <input type="text" id="search_student_no" placeholder="请输入学号">
+                    </div>
+                    <div class="form-group">
+                        <label>考试序号</label>
+                        <input type="number" id="search_exam_order" placeholder="请输入考试序号">
+                    </div>
+                    <button class="btn btn-primary" onclick="searchScores()">查询</button>
+                    <button class="btn btn-success" onclick="openAddModal()">新增成绩</button>
+                    <button class="btn btn-info" onclick="loadAbove80()">80分以上</button>
+                    <button class="btn btn-warning" onclick="loadMultipleFail()">不及格统计</button>
+                    <button class="btn btn-secondary" onclick="loadClassAvg()">班级平均分</button>
+                    <button class="btn btn-secondary" onclick="openRestoreModal()">恢复删除</button>
+                </div>
+                <table id="score_table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>学号</th>
+                            <th>考试序号</th>
+                            <th>分数</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="score_tbody"></tbody>
+                </table>
+                <div class="pagination" id="pagination"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="score_modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal_title">新增成绩</h3>
+                <button class="modal-close" onclick="closeModal('score_modal')">&times;</button>
+            </div>
+            <form id="score_form">
+                <input type="hidden" id="score_id">
+                <div class="form-group">
+                    <label>学号 *</label>
+                    <input type="text" id="form_student_no" required minlength="3" maxlength="20">
+                </div>
+                <div class="form-group">
+                    <label>考试序号 *</label>
+                    <input type="number" id="form_exam_order" required min="1">
+                </div>
+                <div class="form-group">
+                    <label>分数 (0-100)</label>
+                    <input type="number" id="form_score" min="0" max="100" step="0.1">
+                </div>
+            </form>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('score_modal')">取消</button>
+                <button class="btn btn-primary" onclick="saveScore()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="restore_modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>恢复已删除成绩</h3>
+                <button class="modal-close" onclick="closeModal('restore_modal')">&times;</button>
+            </div>
+            <form id="restore_form">
+                <div class="form-group">
+                    <label>成绩ID</label>
+                    <input type="number" id="restore_id">
+                </div>
+                <div class="form-group">
+                    <label>学号</label>
+                    <input type="text" id="restore_student_no">
+                </div>
+                <div class="form-group">
+                    <label>考试序号</label>
+                    <input type="number" id="restore_exam_order">
+                </div>
+            </form>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('restore_modal')">取消</button>
+                <button class="btn btn-primary" onclick="restoreScores()">恢复</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="stats_modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="stats_title">统计信息</h3>
+                <button class="modal-close" onclick="closeModal('stats_modal')">&times;</button>
+            </div>
+            <div id="stats_content"></div>
+        </div>
+    </div>
+
+    <script src="/static/js/api.js?v=2"></script>
+    <script src="/static/js/common.js?v=2"></script>
+    <script src="/static/pages/score/js/score.js?v=2"></script>
+</body>
+</html>

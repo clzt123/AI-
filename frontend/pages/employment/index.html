@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>就业模块</title>
+    <link rel="stylesheet" href="/static/css/common.css">
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <h2>学生管理系统</h2>
+            <ul>
+                <li><a href="/">首页</a></li>
+                <li><a href="/pages/student/">学生管理</a></li>
+                <li><a href="/pages/score/">成绩管理</a></li>
+                <li><a href="/pages/employment/" class="active">就业模块</a></li>
+                <li><a href="/pages/employment2/">学生就业管理</a></li>
+                <li><a href="/pages/teacher/">老师管理</a></li>
+                <li><a href="/pages/class/">班级管理</a></li>
+                <li><a href="/pages/student2/">学生管理2</a></li>
+            </ul>
+        </div>
+        <div class="main-content">
+            <div class="header">
+                <h1>就业模块</h1>
+            </div>
+            <div class="content-card">
+                <div class="search-bar">
+                    <div class="form-group">
+                        <label>学生姓名</label>
+                        <input type="text" id="search_student_name" placeholder="请输入学生姓名">
+                    </div>
+                    <div class="form-group">
+                        <label>公司名称</label>
+                        <input type="text" id="search_company_name" placeholder="请输入公司名称">
+                    </div>
+                    <div class="form-group">
+                        <label>班级ID</label>
+                        <input type="number" id="search_class_id" placeholder="请输入班级ID">
+                    </div>
+                    <button class="btn btn-primary" onclick="searchEmployments()">查询</button>
+                    <button class="btn btn-success" onclick="openAddModal()">新增就业</button>
+                    <button class="btn btn-info" onclick="openSalaryRangeModal()">薪资区间查询</button>
+                    <button class="btn btn-warning" onclick="loadStatistics()">就业统计</button>
+                    <button class="btn btn-secondary" onclick="openRestoreModal()">恢复删除</button>
+                </div>
+                <table id="employment_table">
+                    <thead>
+                        <tr>
+                            <th>就业ID</th>
+                            <th>学号</th>
+                            <th>姓名</th>
+                            <th>班级ID</th>
+                            <th>就业开始时间</th>
+                            <th>Offer下发时间</th>
+                            <th>公司名称</th>
+                            <th>薪资</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="employment_tbody"></tbody>
+                </table>
+                <div class="pagination" id="pagination"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="employment_modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal_title">新增就业信息</h3>
+                <button class="modal-close" onclick="closeModal('employment_modal')">&times;</button>
+            </div>
+            <form id="employment_form">
+                <input type="hidden" id="employment_id">
+                <div class="form-group">
+                    <label>学号 * (格式: XS+7位数字)</label>
+                    <input type="text" id="form_student_no" required pattern="^XS\d{7}$" placeholder="例如: XS2400001">
+                </div>
+                <div class="form-group">
+                    <label>学生姓名</label>
+                    <input type="text" id="form_student_name">
+                </div>
+                <div class="form-group">
+                    <label>班级ID</label>
+                    <input type="number" id="form_class_id">
+                </div>
+                <div class="form-group">
+                    <label>就业开始时间</label>
+                    <input type="date" id="form_job_open_time">
+                </div>
+                <div class="form-group">
+                    <label>Offer下发时间</label>
+                    <input type="date" id="form_offer_send_time">
+                </div>
+                <div class="form-group">
+                    <label>公司名称</label>
+                    <input type="text" id="form_company_name">
+                </div>
+                <div class="form-group">
+                    <label>薪资</label>
+                    <input type="number" id="form_salary">
+                </div>
+            </form>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('employment_modal')">取消</button>
+                <button class="btn btn-primary" onclick="saveEmployment()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="salary_range_modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>薪资区间查询</h3>
+                <button class="modal-close" onclick="closeModal('salary_range_modal')">&times;</button>
+            </div>
+            <form id="salary_range_form">
+                <div class="form-group">
+                    <label>最低薪资</label>
+                    <input type="number" id="salary_min">
+                </div>
+                <div class="form-group">
+                    <label>最高薪资</label>
+                    <input type="number" id="salary_max">
+                </div>
+            </form>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('salary_range_modal')">取消</button>
+                <button class="btn btn-primary" onclick="searchBySalary()">查询</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="stats_modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="stats_title">就业统计</h3>
+                <button class="modal-close" onclick="closeModal('stats_modal')">&times;</button>
+            </div>
+            <div id="stats_content"></div>
+        </div>
+    </div>
+
+    <div class="modal" id="restore_modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>恢复已删除就业信息</h3>
+                <button class="modal-close" onclick="closeModal('restore_modal')">&times;</button>
+            </div>
+            <form id="restore_form">
+                <div class="form-group">
+                    <label>就业ID</label>
+                    <input type="number" id="restore_employment_id" placeholder="请输入就业ID">
+                </div>
+            </form>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('restore_modal')">取消</button>
+                <button class="btn btn-primary" onclick="restoreEmploymentById()">恢复</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/api.js?v=7"></script>
+    <script src="/static/js/common.js?v=7"></script>
+    <script src="/static/pages/employment/js/employment.js?v=7"></script>
+</body>
+</html>
