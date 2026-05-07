@@ -209,13 +209,14 @@ function searchDeletedStudents() {
 
 async function loadAgeStats() {
     try {
-        const res = await apiRequest('/students/check_age');
+        const res = await apiRequest('/students/age_stats');
         document.getElementById('stats_title').textContent = '超过30岁的学员';
         let html = '<table><thead><tr><th>ID</th><th>学号</th><th>姓名</th><th>年龄</th><th>性别</th></tr></thead><tbody>';
-        if (!res || res.length === 0) {
+        const data = Array.isArray(res) ? res : (res.data || []);
+        if (!data || data.length === 0) {
             html += '<tr><td colspan="5" style="text-align:center;">暂无数据</td></tr>';
         } else {
-            res.forEach(s => {
+            data.forEach(s => {
                 html += `<tr><td>${s.id}</td><td>${s.student_no}</td><td>${s.student_name}</td><td>${s.age}</td><td>${s.gender || '-'}</td></tr>`;
             });
         }
@@ -229,14 +230,19 @@ async function loadAgeStats() {
 
 async function loadGenderStats() {
     try {
-        const res = await apiRequest('/students/check_gender');
+        const res = await apiRequest('/students/gender_stats');
         document.getElementById('stats_title').textContent = '班级人数统计';
-        let html = '<table><thead><tr><th>班级ID</th><th>班级名称</th><th>总人数</th><th>男生人数</th><th>女生人数</th></tr></thead><tbody>';
-        if (!res || res.length === 0) {
-            html += '<tr><td colspan="5" style="text-align:center;">暂无数据</td></tr>';
+        let html = '<table><thead><tr><th>班级ID</th><th>总人数</th><th>男生人数</th><th>女生人数</th></tr></thead><tbody>';
+        const data = Array.isArray(res) ? res : (res.data || []);
+        if (!data || data.length === 0) {
+            html += '<tr><td colspan="4" style="text-align:center;">暂无数据</td></tr>';
         } else {
-            res.forEach(s => {
-                html += `<tr><td>${s.class_id}</td><td>${s.class_name || '-'}</td><td>${s.total_count}</td><td>${s.male_count}</td><td>${s.female_count}</td></tr>`;
+            data.forEach(s => {
+                const classId = s.class_id || s.班级 || s['班级'] || '-';
+                const totalCount = s.total_count || s.班级总人数 || s['班级总人数'] || 0;
+                const maleCount = s.male_count || s.男生人数 || s['男生人数'] || 0;
+                const femaleCount = s.female_count || s.女生人数 || s['女生人数'] || 0;
+                html += `<tr><td>${classId}</td><td>${totalCount}</td><td>${maleCount}</td><td>${femaleCount}</td></tr>`;
             });
         }
         html += '</tbody></table>';

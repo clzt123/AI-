@@ -81,17 +81,20 @@ def check_student_age(db: Session):
 def check_student_gender(db: Session):
     stu = (db.query(
         Student.class_id.label("班级"),
-        func.count(id).label('班级总人数'),
-        func.sum(case((Student.gender == "男",1),else_=0)).label("男生人数"), #性别为男则记为1
-        func.sum(case((Student.gender == "女",1),else_=0)).label("女生人数")  #性别为女则记为1，最后都是统计总数
+        func.count(Student.id).label('班级总人数'),
+        func.sum(func.if_(Student.gender == "男", 1, 0)).label("男生人数"),
+        func.sum(func.if_(Student.gender == "女", 1, 0)).label("女生人数")
     )
     .filter(Student.is_deleted == 0)
     .group_by(Student.class_id)
-    .all()) #返回所有班级的统计结果
-    return [{
-        "班级":s.班级,
-        "班级总人数":s.班级总人数,
-        "男生人数":s.男生人数,
-        "女生人数":s.女生人数
-    } for s in stu] #用一个列表推导式的方法将查询到的对象以字典的形式传回前端
+    .all())
+    result = []
+    for s in stu:
+        result.append({
+            "班级": s.班级,
+            "班级总人数": s.班级总人数,
+            "男生人数": s.男生人数 if s.男生人数 is not None else 0,
+            "女生人数": s.女生人数 if s.女生人数 is not None else 0
+        })
+    return result
 

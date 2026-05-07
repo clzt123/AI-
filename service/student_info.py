@@ -41,12 +41,8 @@ def judge_get_deleted_student(db: Session, student_name=None,page=1, page_size=1
 
 def judge_check_student_age(db: Session):
     stu = check_student_age(db=db)
-    if not stu:
-        raise HTTPException(status_code=404, detail="Student not found")
     return stu
 
 def judge_check_student_gender(db: Session):
     stu = check_student_gender(db=db)
-    if not stu:
-        raise HTTPException(status_code=404, detail="Student not found")
     return stu
