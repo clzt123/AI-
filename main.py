@@ -1,6 +1,9 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
+from fastapi.exceptions import RequestValidationError
+from fastapi import HTTPException
+from starlette.exceptions import HTTPException as StarletteHTTPException
 from database import engine,Base
 from api import *
 import os
@@ -17,6 +20,30 @@ APP_PORT = int(os.getenv("APP_PORT", "8000"))
 Base.metadata.create_all(bind=engine)
 # 创建系统
 app = FastAPI(title="学生管理系统",version="2.0")
+
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(request, exc):
+    return {
+        "code": exc.status_code,
+        "message": exc.detail,
+        "data": None
+    }
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request, exc):
+    return {
+        "code": 422,
+        "message": "请求参数校验失败",
+        "data": [str(err) for err in exc.errors()]
+    }
+
+@app.exception_handler(Exception)
+async def general_exception_handler(request, exc):
+    return {
+        "code": 500,
+        "message": "服务器内部错误",
+        "data": None
+    }
 
 # 挂载静态文件
 frontend_dir = os.path.join(os.path.dirname(__file__), "frontend")

@@ -1,10 +1,10 @@
 from fastapi import HTTPException
 from dao.score import *
 from models.score import Score_DB
-from schemas.score import Score_QQ, ScoreUpdate
+from schemas.score import ScoreCreate, ScoreUpdate
 
 # 添加成绩业务逻辑（先判断 学号+序次 是否重复）
-def add_score_service(db, score: Score_QQ):
+def add_score_service(db, score: ScoreCreate):
     # 1. 先查询：同一学生 + 同一考试序次 是否已经存在
     exists = db.query(Score_DB).filter(
         Score_DB.student_no == score.student_no,  # 学号相同
@@ -80,14 +80,16 @@ def restore_score_service(db: Session, id: int = None, student_no: str = None, e
     if not score_list:
         raise HTTPException(status_code=404, detail="未找到任何已删除的成绩数据")
     # 3. 批量恢复（同时支持单条/多条）
-    restore_count = 0
-    for score in score_list:
-        score.is_deleted = 0  # 恢复
-        restore_count += 1
-    # 4. 提交事务
-    db.commit()
+    try:
+        for score in score_list:
+            score.is_deleted = 0  # 恢复
+        # 4. 提交事务
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="恢复操作失败")
     # 5. 返回结果
-    return restore_count
+    return len(score_list)
 
 # 判断80分以上学生是否存在，不存在抛出异常
 def get_all_above_80_service(db):

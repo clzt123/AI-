@@ -4,12 +4,12 @@ from sqlalchemy.orm import Session
 from database import *
 from models.score import Score_DB
 from models.student_info import Student
-from schemas.score import Score_QQ, ScoreUpdate
+from schemas.score import ScoreCreate, ScoreUpdate
 # 从集合模块导入默认字典，自动为不存在的键初始化空值
 from collections import defaultdict
 
 # 添加成绩数据访问层方法：操作数据库添加成绩
-def add_score_dao(db: Session, score: Score_QQ):
+def add_score_dao(db: Session, score: ScoreCreate):
     # 创建成绩数据库对象，is_deleted=0表示未删除
     item = Score_DB(**score.model_dump(), is_deleted=0)
     # 将对象添加到数据库会话

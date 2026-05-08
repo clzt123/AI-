@@ -2,7 +2,6 @@ from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 from dao.student_dao import *
 from schemas.student_schemas import *
-from models.student_model import StudentModel
 
 
 #增加新学生信息
@@ -14,21 +13,15 @@ def create_student_service(db: Session,data:StudentCreate):
 
 #删除学生
 def delete_student_service(db: Session,student_id:int):
-    if not get_student_by_id(db,student_id):
+    if not check_student_exists(db,student_id):
         raise HTTPException(status_code=404,detail="学生不存在")
     delete_student(db,student_id)
-    return {"message":"删除成功"}
 
 #恢复学生
 def restore_student_service(db: Session,student_id:int):
-    db_student = db.query(StudentModel).filter(
-        StudentModel.id == student_id,
-        StudentModel.is_deleted == 1
-    ).first()
-    if not db_student:
+    if not check_student_deleted(db,student_id):
         raise HTTPException(status_code=404,detail="学生不存在或未被删除")
     restore_student(db,student_id)
-    return {"message":"恢复成功"}
 
 #修改学生信息
 def update_student_service(db: Session,student_id:int,data:StudentUpdate):

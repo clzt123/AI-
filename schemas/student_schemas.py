@@ -8,7 +8,7 @@ class StudentCreate(BaseModel):
     student_name:str = Field(...,description="学生姓名（必填）")
     gender:Optional[str] = Field(None,description="性别（选填）")
     age:Optional[int] = Field(None,description="年龄（选填）")
-    native_place:Optional[str]=Field(None,description="籍贯（）选填")
+    native_place:Optional[str]=Field(None,description="籍贯（选填）")
     graduate_school: Optional[str] = Field(None, description="毕业院校（选填）")
     major: Optional[str] = Field(None, description="专业（选填）")
     education: Optional[str] = Field(None, description="学历（选填）")

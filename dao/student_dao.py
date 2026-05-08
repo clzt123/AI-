@@ -3,9 +3,9 @@ from models.student_model import StudentModel
 from schemas.student_schemas import StudentCreate, StudentUpdate
 
 #新增学生数据
-def create_student(db:Session,student_date:StudentCreate):
+def create_student(db:Session,student_data:StudentCreate):
     #把前端传来的Pydantic数据，转换成数据库能识别的ORM模型对象。
-    db_student = StudentModel(**student_date.model_dump())
+    db_student = StudentModel(**student_data.model_dump())
     db.add(db_student)
     db.commit()
     #强制从数据库重新查询一遍最新数据，覆盖当前模型对象的属性。
@@ -33,11 +33,28 @@ def restore_student(db:Session,student_id:int):
         db.refresh(db_student)
     return db_student
 
+def check_student_exists(db:Session,student_id:int):
+    return db.query(StudentModel).filter(
+        StudentModel.id == student_id,
+        StudentModel.is_deleted == 0
+    ).first() is not None
+
+def check_student_deleted(db:Session,student_id:int):
+    return db.query(StudentModel).filter(
+        StudentModel.id == student_id,
+        StudentModel.is_deleted == 1
+    ).first() is not None
+
+def check_student_exists_any(db:Session,student_id:int):
+    return db.query(StudentModel).filter(
+        StudentModel.id == student_id
+    ).first() is not None
+
 #更新学生数据
-def update_student(db:Session,student_id:int,student_date:StudentUpdate):
+def update_student(db:Session,student_id:int,student_data:StudentUpdate):
     db_student = get_student_by_id(db,student_id)
     if db_student:
-        update_data = student_date.model_dump(exclude_unset=True)
+        update_data = student_data.model_dump(exclude_unset=True)
         for key, value in update_data.items():
             setattr(db_student, key, value)
         db.commit()

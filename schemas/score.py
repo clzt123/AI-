@@ -3,7 +3,7 @@ from typing import Optional
 
 # 请求体模型
 # 添加成绩时的请求参数
-class Score_QQ(BaseModel):
+class ScoreCreate(BaseModel):
     student_no: str = Field(..., min_length=3, max_length=20)  # 学号
     exam_order: int = Field(..., ge=1)                         # 考试序号
     score: Optional[float] = Field(None, ge=0, le=100)         # 分数 Optional：可以不传 / 可以为 None 意思：成绩可填、也可以不填

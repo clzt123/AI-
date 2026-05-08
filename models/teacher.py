@@ -2,7 +2,7 @@ from sqlalchemy import Column, Integer, String, Date, DateTime, func
 from database import Base
 
 #定义ORM模型
-class Teacher_Model(Base):
+class Teacher(Base):
     __tablename__ = 'teacher'
     teacher_id = Column(Integer,primary_key=True,autoincrement=True,comment="老师编号")
     teacher_name = Column(String(50),nullable=False,comment="老师姓名")

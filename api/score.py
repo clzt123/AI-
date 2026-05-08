@@ -1,15 +1,15 @@
 from fastapi import APIRouter, Depends, Query, Path
+from sqlalchemy.orm import Session
 from service.score import *
-from dao.score import *
 from schemas.score import *
-from database import *
+from database import get_db
 
 # 创建成绩模块路由实例，用于注册成绩相关接口
 score_router = APIRouter()
 
 # 添加单条成绩信息（无需传id，数据库自增）
 @score_router.post('/scores', response_model=ScoreResponse, summary="添加成绩")
-def add_score(score: Score_QQ, db: Session = Depends(get_db)):
+def add_score(score: ScoreCreate, db: Session = Depends(get_db)):
     # 调用业务逻辑层添加成绩方法，传入数据库会话和成绩参数
     result = add_score_service(db, score)
     # 返回统一响应格式：状态码、提示信息、返回数据

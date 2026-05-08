@@ -2,7 +2,7 @@
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 from models.class_info_models import ClassInfo
-from schemas.class_info_schemas import ClassResp, ClassUpdate
+from schemas.class_info_schemas import ClassResponse, ClassUpdate
 
 
 #1查询所有班级信息:
@@ -16,8 +16,8 @@ def get_one_classinfo(db: Session,class_id: int):
     return one_cls
 
 #3添加班级：
-def post_add_class(cls:ClassUpdate,db:Session):
-    new_class = ClassInfo(**cls.dict())
+def post_add_class(cls_data:ClassUpdate,db:Session):
+    new_class = ClassInfo(**cls_data.dict())
     db.add(new_class)
     db.commit()
     db.refresh(new_class)
@@ -38,16 +38,32 @@ def put_update_classinfo(class_id: int, update_data, db: Session):
 #5逻辑删除：
 def delete_class(class_id: int, db: Session):
     cls = db.query(ClassInfo).filter(ClassInfo.class_id == class_id).first()
+    if not cls:
+        return None
     cls.is_deleted = 1
     db.commit()
-    return {"msg": "删除成功"}
+    return cls
 
 #6恢复逻辑删除数据：
 def restore_class(class_id: int, db: Session):
     cls = db.query(ClassInfo).filter(ClassInfo.class_id == class_id).first()
+    if not cls:
+        return None
     cls.is_deleted = 0
     db.commit()
-    return {"msg": "恢复数据成功"}
+    return cls
+
+def check_class_exists(db: Session, class_id: int, include_deleted=False):
+    q = db.query(ClassInfo).filter(ClassInfo.class_id == class_id)
+    if not include_deleted:
+        q = q.filter(ClassInfo.is_deleted == 0)
+    return q.first() is not None
+
+def check_class_name_exists(db: Session, class_name: str):
+    return db.query(ClassInfo).filter(
+        ClassInfo.class_name == class_name,
+        ClassInfo.is_deleted == 0
+    ).first() is not None
 
 #统计分析模块：
 # 按年月统计每个月开班的班级数量:

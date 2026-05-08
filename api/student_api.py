@@ -20,7 +20,8 @@ def delete_student(
         student_id:int,
         db: Session = Depends(get_db)
 ):
-    return delete_student_service(db,student_id)
+    delete_student_service(db,student_id)
+    return {"code": 200, "message": "删除成功", "data": None}
 
 #修改学生信息
 @router.put("/student_update/{student_id}",response_model=StudentResponse)

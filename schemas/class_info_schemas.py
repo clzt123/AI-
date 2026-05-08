@@ -14,7 +14,7 @@ class ClassUpdate(BaseModel):
     head_teacher_id: Optional[int] = None
     lecturer_id: Optional[int] = None
 
-class ClassResp(ClassCreate):
+class ClassResponse(ClassCreate):
     class_id: int
     is_deleted:int
     create_time: datetime
@@ -23,4 +23,4 @@ class ClassResp(ClassCreate):
 
     #数据库对象 → 自动转成 JSON
     class Config:
-        orm_mode = True
+        from_attributes = True
