@@ -21,8 +21,8 @@ def add_score(score: ScoreCreate, db: Session = Depends(get_db)):
 def get_scores(
     # 成绩ID查询参数，可选，最小值1
     id: int | None = Query(None, description="成绩ID", ge=1),
-    # 学生学号查询参数，可选，长度3-20
-    student_no: str | None = Query(None, description="学生学号", min_length=3, max_length=20),
+    # 学生学号查询参数，可选，长度1-20
+    student_no: str | None = Query(None, description="学生学号", min_length=1, max_length=20),
     # 考试序号查询参数，可选，最小值1
     exam_order: int | None = Query(None, description="考试序号", ge=1),
     # 分页页码，默认1，最小值1
