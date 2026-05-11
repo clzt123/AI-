@@ -73,10 +73,6 @@ async def page_score():
 async def page_employment():
     return FileResponse(os.path.join(frontend_dir, "pages", "employment", "index.html"))
 
-@app.get("/pages/employment2/")
-async def page_employment2():
-    return FileResponse(os.path.join(frontend_dir, "pages", "employment2", "index.html"))
-
 @app.get("/pages/teacher/")
 async def page_teacher():
     return FileResponse(os.path.join(frontend_dir, "pages", "teacher", "index.html"))
@@ -84,10 +80,6 @@ async def page_teacher():
 @app.get("/pages/class/")
 async def page_class():
     return FileResponse(os.path.join(frontend_dir, "pages", "class", "index.html"))
-
-@app.get("/pages/student2/")
-async def page_student2():
-    return FileResponse(os.path.join(frontend_dir, "pages", "student2", "index.html"))
 
 if __name__ == '__main__':
     import uvicorn
