@@ -11,8 +11,6 @@ def get_student_by_id(db: Session, id: int):
 
 def get_students_list(db: Session, student_name=None, class_id=None, page=1, page_size=10):
     total,data = get_students(db=db, student_name=student_name, class_id=class_id,page=page,page_size=page_size)
-    if total == 0:
-        raise HTTPException(status_code=404, detail="Student not found")
     return total,data
 
 def update_student_service(db: Session, id: int, data: StudentUpdate):
@@ -35,8 +33,6 @@ def restore_student_service(db: Session, id: int):
 
 def get_deleted_student_list(db: Session, student_name=None,page=1, page_size=10):
     total,data = get_deleted_student(db=db, student_name=student_name, page=page, page_size=page_size)
-    if total == 0:
-        raise HTTPException(status_code=404, detail="Student not found")
     return total,data
 
 def check_student_age(db: Session):

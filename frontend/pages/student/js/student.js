@@ -14,12 +14,8 @@ async function loadStudents() {
     if (classId) url += `&class_id=${classId}`;
     try {
         const res = await apiRequest(url);
-        if (res.code === 200) {
-            renderStudents(res.data || []);
-            renderPagination(res.page || 1, res.page_size || pageSize, res.total || 0, 'changePage');
-        } else {
-            showToast(res.msg || '加载失败', 'error');
-        }
+        renderStudents(res.data || []);
+        renderPagination(res.page || 1, res.page_size || pageSize, res.total || 0, 'changePage');
     } catch (e) {
         console.error(e);
     }
@@ -160,13 +156,9 @@ async function fetchDeletedStudents() {
     if (name) url += `&student_name=${name}`;
     try {
         const res = await apiRequest(url);
-        if (res.code === 200) {
-            const data = res.data || [];
-            renderDeletedStudents(data);
-            renderDeletedPagination(res.page || deletedPage, res.page_size || pageSize, res.total || 0);
-        } else {
-            showToast(res.message || '加载失败', 'error');
-        }
+        const data = res.data || [];
+        renderDeletedStudents(data);
+        renderDeletedPagination(res.page || deletedPage, res.page_size || pageSize, res.total || 0);
     } catch (e) {
         console.error(e);
     }
