@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
+from typing import Dict, Any, List
 
 from schemas.employment import EmploymentResponse, EmploymentCreate, EmploymentUpdate
 from service.employment import (
@@ -25,7 +26,8 @@ def get_all_api(
         company_name: str = Query(None, description="就业公司"),
         class_id: int = Query(None, description="班级ID"),
         db: Session = Depends(get_db)
-):
+) -> Dict[str, Any]:
+    """获取所有就业信息列表，支持分页和条件筛选"""
     skip = (page - 1) * page_size
     emp_list = get_all_service(db, skip, page_size, student_name, company_name, class_id)
     return {"code": 200,
@@ -38,7 +40,8 @@ def get_emp_by_salary_range(
     salary_min: int = Query(..., description="最低薪资"),
     salary_max: int = Query(..., description="最高薪资"),
     db: Session = Depends(get_db)
-):
+) -> Dict[str, Any]:
+    """根据薪资范围查询就业信息"""
     emp_list = get_by_salary_range_service(db, salary_min, salary_max)
     return {
         "code": 200,
@@ -48,7 +51,8 @@ def get_emp_by_salary_range(
 
 
 @router.get("/statistics", response_model=dict)
-def get_employment_statistics(db: Session = Depends(get_db)):
+def get_employment_statistics(db: Session = Depends(get_db)) -> Dict[str, Any]:
+    """获取就业统计信息，包括薪资Top5和班级平均薪资"""
     data = get_statistics_service(db)
     return {
         "code": 200,
@@ -58,7 +62,8 @@ def get_employment_statistics(db: Session = Depends(get_db)):
 
 
 @router.post("/", response_model=dict)
-def create_employment_api(data: EmploymentCreate, db: Session = Depends(get_db)):
+def create_employment_api(data: EmploymentCreate, db: Session = Depends(get_db)) -> Dict[str, Any]:
+    """创建新的就业信息记录"""
     emp = create_employment_service(db, data)
     return {"code": 200,
             "message": "添加成功",
@@ -66,7 +71,8 @@ def create_employment_api(data: EmploymentCreate, db: Session = Depends(get_db))
 
 
 @router.get("/{student_no}", response_model=dict)
-def get_student_no_api(student_no: str, db: Session = Depends(get_db)):
+def get_student_no_api(student_no: str, db: Session = Depends(get_db)) -> Dict[str, Any]:
+    """根据学号查询就业信息"""
     emp = get_student_no_service(db, student_no)
     return {"code": 200,
             "message": "查询成功",
@@ -74,7 +80,8 @@ def get_student_no_api(student_no: str, db: Session = Depends(get_db)):
 
 
 @router.put("/{employment_id}", response_model=dict)
-def update_employment_api(employment_id: int, data: EmploymentUpdate, db: Session = Depends(get_db)):
+def update_employment_api(employment_id: int, data: EmploymentUpdate, db: Session = Depends(get_db)) -> Dict[str, Any]:
+    """更新指定就业信息记录"""
     emp = update_employment_service(db, employment_id, data)
     return {"code": 200,
             "message": "修改成功",
@@ -82,7 +89,8 @@ def update_employment_api(employment_id: int, data: EmploymentUpdate, db: Sessio
 
 
 @router.delete("/{employment_id}", response_model=dict)
-def delete_employment_api(employment_id: int, db: Session = Depends(get_db)):
+def delete_employment_api(employment_id: int, db: Session = Depends(get_db)) -> Dict[str, Any]:
+    """逻辑删除指定就业信息记录"""
     delete_employment_service(db, employment_id)
     return {"code": 200,
             "message": "删除成功",
@@ -90,7 +98,8 @@ def delete_employment_api(employment_id: int, db: Session = Depends(get_db)):
 
 
 @router.put("/restore/{employment_id}", response_model=dict)
-def restore_employment_api(employment_id: int, db: Session = Depends(get_db)):
+def restore_employment_api(employment_id: int, db: Session = Depends(get_db)) -> Dict[str, Any]:
+    """恢复已删除的就业信息记录"""
     restore_employment_service(db, employment_id)
     return {
         "code": 200,

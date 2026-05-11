@@ -1,7 +1,8 @@
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy.orm import sessionmaker, declarative_base, Session
 import os
 from dotenv import load_dotenv
+from typing import Generator
 
 load_dotenv()
 
@@ -25,7 +26,8 @@ Base = declarative_base()
 
 SessionLocal = sessionmaker(bind=engine)
 
-def get_db():
+def get_db() -> Generator[Session, None, None]:
+    """获取数据库会话依赖，确保会话使用后自动关闭"""
     db = SessionLocal()
     try:
         yield db

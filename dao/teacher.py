@@ -1,11 +1,13 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from sqlalchemy.exc import SQLAlchemyError
+from typing import List, Optional, Tuple
 from models.teacher import Teacher
 from schemas.teacher import TeacherCreate, TeacherUpdate
 
 # 新增老师
-def create_teacher(db: Session, t: TeacherCreate):
+def create_teacher(db: Session, t: TeacherCreate) -> Teacher:
+    """创建新的老师信息记录"""
     try:
         db_tea = Teacher(**t.model_dump())
         db.add(db_tea)
@@ -17,7 +19,8 @@ def create_teacher(db: Session, t: TeacherCreate):
         raise
 
 # 更新老师
-def update_teacher(db: Session, teacher_id: int, data: TeacherUpdate):
+def update_teacher(db: Session, teacher_id: int, data: TeacherUpdate) -> Optional[Teacher]:
+    """更新指定老师的信息"""
     try:
         tea = db.query(Teacher).filter(
             Teacher.teacher_id == teacher_id,
@@ -35,7 +38,8 @@ def update_teacher(db: Session, teacher_id: int, data: TeacherUpdate):
         raise
 
 # 逻辑删除
-def delete_teacher(db: Session, teacher_id: int):
+def delete_teacher(db: Session, teacher_id: int) -> bool:
+    """逻辑删除指定老师信息"""
     try:
         tea = db.query(Teacher).filter(
             Teacher.teacher_id == teacher_id
@@ -50,21 +54,24 @@ def delete_teacher(db: Session, teacher_id: int):
         raise
 
 #查询所有老师信息
-def get_all_teachers(db: Session):
+def get_all_teachers(db: Session) -> List[Teacher]:
+    """查询所有未删除的老师信息"""
     teachers = db.query(Teacher)\
                  .filter(Teacher.is_deleted == 0)\
                  .all()
     return teachers
 
 # 根据 ID 查询
-def get_teacher_by_id(db: Session, teacher_id: int):
+def get_teacher_by_id(db: Session, teacher_id: int) -> Optional[Teacher]:
+    """根据ID查询老师信息"""
     return db.query(Teacher).filter(
         Teacher.teacher_id == teacher_id,
         Teacher.is_deleted == 0
     ).first()
 
 # 条件查询 + 分页
-def get_teacher_by_conditions(db: Session, teacher_name=None, gender=None, page=1, page_size=10):
+def get_teacher_by_conditions(db: Session, teacher_name=None, gender=None, page=1, page_size=10) -> Tuple[int, List[Teacher]]:
+    """根据条件查询老师信息并分页"""
     q = db.query(Teacher).filter(Teacher.is_deleted == 0)
     if teacher_name:
         q = q.filter(Teacher.teacher_name.like(f"%{teacher_name}%"))
@@ -75,14 +82,16 @@ def get_teacher_by_conditions(db: Session, teacher_name=None, gender=None, page=
     return total, data
 
 #查询所有被删除的老师
-def get_deleted_teachers(db: Session, page=1, page_size=10):
+def get_deleted_teachers(db: Session, page=1, page_size=10) -> Tuple[int, List[Teacher]]:
+    """查询所有已删除的老师信息并分页"""
     q = db.query(Teacher).filter(Teacher.is_deleted == 1)
     total = q.count()
     data = q.offset((page - 1) * page_size).limit(page_size).all()
     return total, data
 
 #恢复已删除老师
-def restore_teacher(db: Session, teacher_id: int):
+def restore_teacher(db: Session, teacher_id: int) -> Optional[Teacher]:
+    """恢复已删除的老师信息"""
     try:
         tea = db.query(Teacher).filter(
             Teacher.teacher_id == teacher_id,
@@ -99,7 +108,8 @@ def restore_teacher(db: Session, teacher_id: int):
         raise
 
 # 统计男女老师人数
-def get_teacher_stats(db: Session):
+def get_teacher_stats(db: Session) -> dict:
+    """统计男女老师人数"""
     result = db.query(
         Teacher.gender,
         func.count(Teacher.teacher_id)
@@ -118,19 +128,22 @@ def get_teacher_stats(db: Session):
             stats['female_count'] = count
     return stats
 
-def check_teacher_exists(db: Session, teacher_id: int):
+def check_teacher_exists(db: Session, teacher_id: int) -> bool:
+    """检查老师是否存在且未被删除"""
     return db.query(Teacher).filter(
         Teacher.teacher_id == teacher_id,
         Teacher.is_deleted == 0
     ).first() is not None
 
-def check_teacher_deleted(db: Session, teacher_id: int):
+def check_teacher_deleted(db: Session, teacher_id: int) -> bool:
+    """检查老师是否已被删除"""
     return db.query(Teacher).filter(
         Teacher.teacher_id == teacher_id,
         Teacher.is_deleted == 1
     ).first() is not None
 
-def check_teacher_exists_any(db: Session, teacher_id: int):
+def check_teacher_exists_any(db: Session, teacher_id: int) -> bool:
+    """检查老师是否存在（包括已删除的）"""
     return db.query(Teacher).filter(
         Teacher.teacher_id == teacher_id
     ).first() is not None
