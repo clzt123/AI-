@@ -14,7 +14,7 @@ from service.employment import (
 )
 from database import get_db
 
-router = APIRouter(prefix="/employments", tags=["就业模块"])
+router = APIRouter(prefix="/employments", tags=["就业管理"])
 
 
 @router.get("/all", response_model=dict)
