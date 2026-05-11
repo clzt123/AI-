@@ -16,19 +16,19 @@ from typing import Optional
 from database import get_db
 
 
-router = APIRouter(prefix="/teacher", tags=["老师管理模块"])
+router = APIRouter(prefix="/teachers", tags=["老师管理模块"])
 
 @router.get('/all', response_model=dict)
 def get_all_teachers(db: Session = Depends(get_db)):
     teachers = get_all_teachers_list(db)
-    return {"code": 200, "message": "查询成功", "data": [TeacherResponse.model_validate(t).model_dump() for t in teachers]}
+    return {"code": 200, "message": "查询成功", "data": teachers}
 
 @router.post('/create', response_model=dict)
 def add_teacher(t: TeacherCreate, db: Session = Depends(get_db)):
     result = create_teacher(db, t)
     return {"code": 200, "message": "添加成功", "data": TeacherResponse.model_validate(result).model_dump()}
 
-@router.get('/check', response_model=TeacherListResponse)
+@router.get('/check', response_model=dict)
 def list_teachers(
     teacher_name: Optional[str] = None,
     gender: Optional[str] = None,
@@ -61,7 +61,7 @@ def delete_teacher(teacher_id: int, db: Session = Depends(get_db)):
     delete_teacher_service(db, teacher_id)
     return {"code": 200, "message": "删除成功", "data": None}
 
-@router.get('/deleted', response_model=TeacherListResponse)
+@router.get('/deleted', response_model=dict)
 def list_deleted_teachers(
     page: int = 1,
     page_size: int = 10,

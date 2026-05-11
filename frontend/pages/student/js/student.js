@@ -14,7 +14,8 @@ async function loadStudents() {
     if (classId) url += `&class_id=${classId}`;
     try {
         const res = await apiRequest(url);
-        renderStudents(res.data || []);
+        const data = Array.isArray(res) ? res : (res.data || []);
+        renderStudents(data);
         renderPagination(res.page || 1, res.page_size || pageSize, res.total || 0, 'changePage');
     } catch (e) {
         console.error(e);
@@ -156,7 +157,7 @@ async function fetchDeletedStudents() {
     if (name) url += `&student_name=${name}`;
     try {
         const res = await apiRequest(url);
-        const data = res.data || [];
+        const data = Array.isArray(res) ? res : (res.data || []);
         renderDeletedStudents(data);
         renderDeletedPagination(res.page || deletedPage, res.page_size || pageSize, res.total || 0);
     } catch (e) {

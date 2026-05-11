@@ -9,7 +9,7 @@ async function loadEmployments() {
     const studentName = document.getElementById('search_student_name').value;
     const companyName = document.getElementById('search_company_name').value;
     const classId = document.getElementById('search_class_id').value;
-    let url = `/employment/all?page=${currentPage}&page_size=${pageSize}`;
+    let url = `/employments/all?page=${currentPage}&page_size=${pageSize}`;
     if (studentName) url += `&student_name=${studentName}`;
     if (companyName) url += `&company_name=${companyName}`;
     if (classId) url += `&class_id=${classId}`;
@@ -66,7 +66,7 @@ function openAddModal() {
 
 async function editEmployment(id) {
     try {
-        const res = await apiRequest(`/employment/all?page=1&page_size=100`);
+        const res = await apiRequest(`/employments/all?page=1&page_size=100`);
         const data = Array.isArray(res) ? res : (res.data || []);
         const emp = data.find(e => e.employment_id === id);
         if (emp) {
@@ -99,10 +99,10 @@ async function saveEmployment() {
     };
     try {
         if (id) {
-            await apiRequest(`/employment/${id}`, 'PUT', data);
+            await apiRequest(`/employments/${id}`, 'PUT', data);
             showToast('修改成功', 'success');
         } else {
-            await apiRequest('/employment/', 'POST', data);
+            await apiRequest('/employments/', 'POST', data);
             showToast('新增成功', 'success');
         }
         closeModal('employment_modal');
@@ -115,7 +115,7 @@ async function saveEmployment() {
 async function deleteEmployment(id) {
     if (!confirm('确定要删除该就业信息吗？')) return;
     try {
-        await apiRequest(`/employment/${id}`, 'DELETE');
+        await apiRequest(`/employments/${id}`, 'DELETE');
         showToast('删除成功', 'success');
         loadEmployments();
     } catch (e) {
@@ -130,7 +130,7 @@ async function restoreEmploymentById() {
         return;
     }
     try {
-        await apiRequest(`/employment/restore/${employmentId}`, 'PUT');
+        await apiRequest(`/employments/restore/${employmentId}`, 'PUT');
         showToast('恢复成功', 'success');
         closeModal('restore_modal');
         document.getElementById('restore_employment_id').value = '';
@@ -159,7 +159,7 @@ async function searchBySalary() {
         return;
     }
     try {
-        const res = await apiRequest(`/employment/salary/range?salary_min=${min}&salary_max=${max}`);
+        const res = await apiRequest(`/employments/salary/range?salary_min=${min}&salary_max=${max}`);
         closeModal('salary_range_modal');
         const data = Array.isArray(res) ? res : (res.data || []);
         renderEmployments(data);
@@ -170,7 +170,7 @@ async function searchBySalary() {
 
 async function loadStatistics() {
     try {
-        const res = await apiRequest('/employment/statistics');
+        const res = await apiRequest('/employments/statistics');
         const data = res.data || res;
         document.getElementById('stats_title').textContent = '就业统计';
         let html = '';

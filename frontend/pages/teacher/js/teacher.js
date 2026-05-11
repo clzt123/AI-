@@ -9,12 +9,13 @@ document.addEventListener('DOMContentLoaded', () => {
 async function loadTeachers() {
     const name = document.getElementById('search_name').value;
     const gender = document.getElementById('search_gender').value;
-    let url = `/teacher/check?page=${currentPage}&page_size=${pageSize}`;
+    let url = `/teachers/check?page=${currentPage}&page_size=${pageSize}`;
     if (name) url += `&teacher_name=${name}`;
     if (gender) url += `&gender=${gender}`;
     try {
         const res = await apiRequest(url);
-        renderTeachers(res.data || []);
+        const data = Array.isArray(res) ? res : (res.data || []);
+        renderTeachers(data);
         renderPagination(res.page || 1, res.page_size || pageSize, res.total || 0, 'changePage');
     } catch (e) {
         console.error(e);
@@ -61,7 +62,7 @@ function openAddModal() {
 
 async function editTeacher(id) {
     try {
-        const res = await apiRequest(`/teacher/check/${id}`);
+        const res = await apiRequest(`/teachers/check/${id}`);
         document.getElementById('modal_title').textContent = '编辑老师';
         document.getElementById('teacher_id').value = res.teacher_id;
         document.getElementById('form_teacher_name').value = res.teacher_name;
@@ -82,10 +83,10 @@ async function saveTeacher() {
     };
     try {
         if (id) {
-            await apiRequest(`/teacher/update/${id}`, 'PUT', data);
+            await apiRequest(`/teachers/update/${id}`, 'PUT', data);
             showToast('修改成功', 'success');
         } else {
-            await apiRequest('/teacher/create', 'POST', data);
+            await apiRequest('/teachers/create', 'POST', data);
             showToast('新增成功', 'success');
         }
         closeModal('teacher_modal');
@@ -98,7 +99,7 @@ async function saveTeacher() {
 async function deleteTeacher(id) {
     if (!confirm('确定要删除该老师吗？')) return;
     try {
-        await apiRequest(`/teacher/delete/${id}`, 'DELETE');
+        await apiRequest(`/teachers/delete/${id}`, 'DELETE');
         showToast('删除成功', 'success');
         loadTeachers();
     } catch (e) {
@@ -108,7 +109,7 @@ async function deleteTeacher(id) {
 
 async function restoreTeacher(id) {
     try {
-        await apiRequest(`/teacher/restore/${id}`, 'PUT');
+        await apiRequest(`/teachers/restore/${id}`, 'PUT');
         showToast('恢复成功', 'success');
         loadDeletedTeachers();
     } catch (e) {
@@ -123,7 +124,7 @@ async function loadDeletedTeachers() {
 }
 
 async function fetchDeletedTeachers() {
-    let url = `/teacher/deleted?page=${deletedPage}&page_size=${pageSize}`;
+    let url = `/teachers/deleted?page=${deletedPage}&page_size=${pageSize}`;
     try {
         const res = await apiRequest(url);
         renderDeletedTeachers(res.data || []);
@@ -170,7 +171,7 @@ function changeDeletedPage(page) {
 
 async function loadStats() {
     try {
-        const res = await apiRequest('/teacher/stats');
+        const res = await apiRequest('/teachers/stats');
         document.getElementById('stats_title').textContent = '老师性别统计';
         let html = '<div class="stat-cards">';
         html += `<div class="stat-card"><h4>总人数</h4><div class="value">${res.total}</div></div>`;

@@ -2,12 +2,12 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from database import get_db
-from schemas.class_info_schemas import ClassResponse, ClassCreate, ClassUpdate
+from schemas.class_info import ClassResponse, ClassCreate, ClassUpdate
 from service.class_info_service import get_all_classinfo_service, get_one_classinfo_service, create_class_service, \
     update_class_service, delete_class_service, restore_class_service, count_class_month_service, \
     get_class_by_lecturer_id_service
 
-class_router = APIRouter(prefix="/class",tags=["班级管理"])
+class_router = APIRouter(prefix="/classes",tags=["班级管理"])
 
 @class_router.get("/all", response_model=dict)
 def get_all_classinfo(db:Session = Depends(get_db)):

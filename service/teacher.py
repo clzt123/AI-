@@ -6,11 +6,12 @@ from dao.teacher import (
     get_deleted_teachers, restore_teacher, get_teacher_stats,
     check_teacher_exists, check_teacher_deleted, check_teacher_exists_any
 )
-from schemas.teacher import TeacherUpdate
+from schemas.teacher import TeacherUpdate, TeacherResponse
 
 def get_all_teachers_list(db: Session):
     teachers = get_all_teachers(db)
-    return teachers if teachers else []
+    serialized = [TeacherResponse.model_validate(t).model_dump() for t in teachers] if teachers else []
+    return serialized
 
 def get_teacher(db: Session, teacher_id: int):
     tea = get_teacher_by_id(db, teacher_id)
@@ -20,13 +21,15 @@ def get_teacher(db: Session, teacher_id: int):
 
 def get_teachers_list(db: Session, teacher_name=None, gender=None, page=1, page_size=10):
     total, data = get_teacher_by_conditions(db, teacher_name, gender, page, page_size)
-    return total, data
+    serialized_data = [TeacherResponse.model_validate(item).model_dump() for item in data] if data else []
+    return total, serialized_data
 
 def get_deleted_teachers_list(db: Session, page=1, page_size=10):
     total, data = get_deleted_teachers(db, page, page_size)
     if total == 0:
         raise HTTPException(status_code=404, detail="未找到已删除的老师")
-    return total, data
+    serialized_data = [TeacherResponse.model_validate(item).model_dump() for item in data] if data else []
+    return total, serialized_data
 
 def update_teacher_service(db: Session, teacher_id: int, data: TeacherUpdate):
     tea = update_teacher(db, teacher_id, data)
@@ -51,7 +54,7 @@ def restore_teacher_service(db: Session, teacher_id: int):
     restored_tea = restore_teacher(db, teacher_id)
     if not restored_tea:
         raise HTTPException(status_code=500, detail="恢复操作失败")
-    return restored_tea
+    return TeacherResponse.model_validate(restored_tea).model_dump()
 
 def get_teacher_stats_service(db: Session):
     from dao.teacher import get_teacher_stats as dao_get_teacher_stats

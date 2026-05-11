@@ -14,8 +14,9 @@ def get_student_by_id(db: Session, id: int):
     return stu
 
 def get_students_list(db: Session, student_name=None, class_id=None, page=1, page_size=10):
-    total,data = dao.get_students(db=db, student_name=student_name, class_id=class_id,page=page,page_size=page_size)
-    return total,data
+    total, data = dao.get_students(db=db, student_name=student_name, class_id=class_id, page=page, page_size=page_size)
+    serialized_data = [StudentResponse.model_validate(item).model_dump() for item in data] if data else []
+    return total, serialized_data
 
 def update_student_service(db: Session, id: int, data: StudentUpdate):
     stu = dao.update_student(db=db, id=id, data=data)
@@ -35,9 +36,10 @@ def restore_student_service(db: Session, id: int):
         raise HTTPException(status_code=404, detail="学生不存在")
     return stu
 
-def get_deleted_student_list(db: Session, student_name=None,page=1, page_size=10):
-    total,data = dao.get_deleted_student(db=db, student_name=student_name, page=page, page_size=page_size)
-    return total,data
+def get_deleted_student_list(db: Session, student_name=None, page=1, page_size=10):
+    total, data = dao.get_deleted_student(db=db, student_name=student_name, page=page, page_size=page_size)
+    serialized_data = [StudentResponse.model_validate(item).model_dump() for item in data] if data else []
+    return total, serialized_data
 
 def check_student_age(db: Session):
     stu = dao.check_student_age(db=db)

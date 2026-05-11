@@ -22,7 +22,7 @@ def create_student_route(s: StudentCreate, db: Session = Depends(get_db)):
     result = create_student(db, s)
     return {"code": 200, "message": "添加成功", "data": StudentResponse.model_validate(result).model_dump()}
 
-@router.get("/check", response_model=StudentListResponse)
+@router.get("/check", response_model=dict)
 def list_students(
     student_name: Optional[str] = None,
     class_id: Optional[int] = None,

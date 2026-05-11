@@ -13,27 +13,18 @@
 | 文件 | 行 | 审查原因 | 修改建议 |
 |------|-----|----------|----------|
 | `schemas/class_info_schemas.py` | 全文件 | 其他模块的 schema 文件均命名为 `xxx.py`（如 `student_info.py`、`employment.py`），唯独班级模块使用了 `class_info_schemas.py`，命名风格不统一 | 重命名为 `class_info.py`，与项目其他模块保持一致 |
-| `api/class_info.py` | 全文件 | 其他 API 文件命名与模块名一致（如 `student_info.py`），但班级模块的 router 变量命名为 `class_router` 而非 `class_info_router` | 将 router 变量名统一为 `class_info_router`，或在 `api/__init__.py` 中统一导出名 |
 | `dao/class_info_dao.py` | 全文件 | 其他 DAO 文件直接使用模块名（如 `student_info.py`），班级模块使用了 `class_info_dao.py`，命名风格不统一 | 重命名为 `class_info.py`，与项目其他模块保持一致 |
 
-### 1.2 函数命名风格混用
+### 1.2 变量命名不规范
 
 | 文件 | 行 | 审查原因 | 修改建议 |
 |------|-----|----------|----------|
-| `service/class_info_service.py` | 全文件 | 函数名使用 `get_all_classinfo_service`、`get_one_classinfo_service` 等，其中 `classinfo` 是缩写形式，与其他模块的完整命名风格（如 `get_students_list`）不一致 | 统一使用 `get_all_classes`、`get_one_class` 等简洁命名，去掉冗余的 `info` 和 `service` 后缀 |
-| `dao/class_info_dao.py:8` | 8 | 函数名 `get_all_classes` 与 service 层的 `get_all_classinfo_service` 命名风格不一致 | 统一 DAO 层和 Service 层的命名风格 |
-
-### 1.3 变量命名不规范
-
-| 文件 | 行 | 审查原因 | 修改建议 |
-|------|-----|----------|----------|
-| `database.py:26` | 26 | `Session_local` 使用驼峰+下划线混合命名，不符合 PEP8 蛇形命名规范 | 改为 `SessionLocal`（类名风格）或 `session_local`（蛇形命名） |
 | `dao/student_info.py:10` | 10 | 变量名 `db_stu` 使用缩写，可读性差 | 改为 `db_student` 或 `new_student` |
 | `dao/teacher.py:10` | 10 | 变量名 `db_tea` 使用缩写，可读性差 | 改为 `db_teacher` 或 `new_teacher` |
 | `dao/class_info_dao.py:9` | 9 | 变量名 `all_cls` 使用缩写，可读性差 | 改为 `all_classes` |
 | `dao/class_info_dao.py:13` | 13 | 变量名 `one_cls` 使用缩写，可读性差 | 改为 `class_obj` 或 `class_info` |
 
-### 1.4 类命名不规范
+### 1.3 类命名不规范
 
 | 文件 | 行 | 审查原因 | 修改建议 |
 |------|-----|----------|----------|
@@ -47,15 +38,12 @@
 
 | 文件 | 行 | 审查原因 | 修改建议 |
 |------|-----|----------|----------|
-| `api/student_info.py:20` | 20 | `create_student_route` 返回 `StudentResponse` 模型，而其他接口返回 `{"code": 200, "message": "...", "data": ...}` 格式 | 统一所有接口返回格式为 `{"code": 200, "message": "...", "data": ...}` |
-| `api/student_info.py:56` | 56 | `get_student_by_id_route` 返回 `StudentResponse` 模型，格式不统一 | 统一返回格式 |
-| `api/student_info.py:60` | 60 | `update_student` 返回 `StudentResponse` 模型，格式不统一 | 统一返回格式 |
-| `api/score.py:17` | 17 | `add_score` 返回 `{"code": 200, "message": "添加成功", "data": result}`，但 `result` 是 ORM 对象，未序列化 | 使用 `ScoreResponse.model_validate(result).model_dump()` 进行序列化 |
-| `api/score.py:34` | 34 | `update_score` 返回的 `data` 是 ORM 对象，未序列化 | 使用 `ScoreResponse` 序列化 |
-| `api/teacher.py:22` | 22 | `get_all_teachers` 返回的 `teachers` 是 ORM 对象列表，未序列化 | 使用 `TeacherResponse` 序列化 |
-| `api/teacher.py:27` | 27 | `add_teacher` 返回的 `data` 是 ORM 对象，未序列化 | 使用 `TeacherResponse` 序列化 |
-| `api/teacher.py:50` | 50 | `get_teacher_by_id` 返回的 `data` 是 ORM 对象，未序列化 | 使用 `TeacherResponse` 序列化 |
-| `api/teacher.py:54` | 54 | `update_teacher` 返回的 `data` 是 ORM 对象，未序列化 | 使用 `TeacherResponse` 序列化 |
+| `api/employment.py:19-23` | 19-23 | `get_all_api` 返回的 `emp_list` 是 ORM 对象列表，未序列化 | 使用 `EmploymentResponse` 序列化 |
+| `api/teacher.py:80` | 80 | `restore_teacher` 返回的 `data` 是 ORM 对象，未序列化 | 使用 `TeacherResponse` 序列化 |
+| `api/student_info.py:25-32` | 25-32 | `list_students` 返回的 `data` 是 ORM 对象列表，未序列化 | 使用 `StudentResponse` 序列化 |
+| `api/student_info.py:74-89` | 74-89 | `check_is_deleted` 返回的 `data` 是 ORM 对象列表，未序列化 | 使用 `StudentResponse` 序列化 |
+| `api/teacher.py:31-44` | 31-44 | `list_teachers` 返回的 `data` 是 ORM 对象列表，未序列化 | 使用 `TeacherResponse` 序列化 |
+| `api/teacher.py:64-77` | 64-77 | `list_deleted_teachers` 返回的 `data` 是 ORM 对象列表，未序列化 | 使用 `TeacherResponse` 序列化 |
 
 ### 2.2 路由前缀不一致
 
@@ -71,16 +59,15 @@
 
 | 文件 | 行 | 审查原因 | 修改建议 |
 |------|-----|----------|----------|
-| `api/employment.py:12-13` | 12-13 | 使用 `skip` 和 `limit` 作为分页参数 | 统一使用 `page` 和 `page_size` |
-| `api/student_info.py:28` | 28 | 使用 `page` 和 `page_size` | 保持一致 |
-| `api/teacher.py:34-35` | 34-35 | 使用 `page` 和 `page_size` | 保持一致 |
+| `api/employment.py:12-13` | 12-13 | 使用 `page` 和 `page_size`，但在 service 层转换为 `skip` 和 `limit`，转换逻辑在 API 层 | 统一在 service 层处理分页转换 |
 
 ### 2.4 响应模型定义不一致
 
 | 文件 | 行 | 审查原因 | 修改建议 |
 |------|-----|----------|----------|
 | `api/student_info.py` | 全文件 | 部分接口使用 `response_model=StudentListResponse`，部分使用 `response_model=dict` | 统一使用具体的 Response 模型或统一使用 `dict` |
-| `api/teacher.py` | 全文件 | 大部分接口使用 `response_model=dict`，但 `list_teachers` 使用 `response_model=TeacherListResponse` | 统一响应模型定义方式 |
+| `api/teacher.py` | 全文件 | 大部分接口使用 `response_model=dict`，但 `list_teachers` 和 `list_deleted_teachers` 使用 `response_model=TeacherListResponse` | 统一响应模型定义方式 |
+| `api/score.py` | 全文件 | 部分接口使用具体 Response 模型，部分没有定义 | 统一响应模型定义方式 |
 
 ---
 
@@ -111,7 +98,6 @@
 | 文件 | 行 | 审查原因 | 修改建议 |
 |------|-----|----------|----------|
 | `service/student_info.py:7-8` | 7-8 | `create_student` 函数直接透传 DAO 层调用，没有额外业务逻辑 | 考虑简化架构，或在该层添加业务校验逻辑 |
-| `service/student_info.py:16-18` | 16-18 | `get_students_list` 函数直接透传 DAO 层调用 | 考虑简化架构，或在该层添加业务逻辑 |
 | `service/student_info.py:42-44` | 42-44 | `check_student_age` 函数直接透传 DAO 层调用 | 考虑简化架构，或在该层添加业务逻辑 |
 | `service/student_info.py:46-48` | 46-48 | `check_student_gender` 函数直接透传 DAO 层调用 | 考虑简化架构，或在该层添加业务逻辑 |
 
@@ -126,7 +112,7 @@
 | 文件 | 行 | 审查原因 | 修改建议 |
 |------|-----|----------|----------|
 | `api/student_info.py:38-49` | 38-49 | `get_age_stats` 接口在 API 层进行数据格式转换，应该在 Service 层完成 | 将数据格式转换逻辑移至 Service 层 |
-| `api/employment.py:21-31` | 21-31 | `get_statistics_service` 的统计逻辑在 Service 层进行数据组装，但 API 层没有统一处理 | 统一在 Service 层完成数据组装 |
+| `api/employment.py:19` | 19 | `get_all_api` 在 API 层计算 `skip = (page - 1) * page_size`，应该在 Service 层处理 | 将分页转换逻辑移至 Service 层 |
 
 ---
 
@@ -136,7 +122,6 @@
 
 | 文件 | 行 | 审查原因 | 修改建议 |
 |------|-----|----------|----------|
-| `dao/score.py:88-106` | 88-106 | `get_all_above_80_dao` 函数有详细注释，但 `get_multiple_fail_dao` 和 `get_class_avg_dao` 的注释风格不一致 | 统一注释风格，为所有复杂查询函数添加业务逻辑说明 |
 | `service/employment.py:20-31` | 20-31 | `get_statistics_service` 方法没有注释说明统计逻辑 | 添加方法注释说明统计维度和返回格式 |
 | `dao/class_info_dao.py:76-90` | 76-90 | `count_class_month` 函数没有注释说明返回格式 | 添加注释说明返回的数据结构 |
 
@@ -150,7 +135,6 @@
 | `dao/student_info.py:49` | 49 | `# 删除按 id` 是显而易见的注释 | 删除或改为更有价值的说明 |
 | `dao/teacher.py:8` | 8 | `# 新增老师` 是显而易见的注释 | 删除或改为更有价值的说明 |
 | `dao/teacher.py:20` | 20 | `# 更新老师` 是显而易见的注释 | 删除或改为更有价值的说明 |
-| `dao/teacher.py:37` | 37 | `# 逻辑删除` 有一定价值，但可以更详细 | 补充说明是软删除而非物理删除 |
 | `database.py:18` | 18 | `#删除所有表` 和 `#创建表` 是注释掉的代码，不应保留 | 删除注释掉的代码，或使用版本控制管理 |
 
 ### 4.3 模块级文档缺失
@@ -184,7 +168,7 @@
 
 | 文件 | 行 | 审查原因 | 修改建议 |
 |------|-----|----------|----------|
-| `database.py:28-33` | 28-33 | `get_db` 使用 `yield` 实现依赖注入，但没有使用 `contextlib` 或 FastAPI 的 `Depends` 最佳实践 | 当前实现是正确的，但可以添加类型注解 `-> Generator[Session, None, None]` |
+| `database.py:28-33` | 28-33 | `get_db` 使用 `yield` 实现依赖注入，实现正确 | 当前实现是正确的，但可以添加类型注解 `-> Generator[Session, None, None]` |
 | `dao/employment.py:63-70` | 63-70 | `create_employment` 方法在异常时执行 `db.rollback()`，但没有关闭会话 | DAO 层不应负责会话生命周期，应由依赖注入层管理 |
 | `dao/student_info.py:15-17` | 15-17 | `create_student` 方法在异常时执行 `db.rollback()`，但没有关闭会话 | DAO 层不应负责会话生命周期，应由依赖注入层管理 |
 
@@ -245,11 +229,7 @@
 
 | 文件 | 行 | 审查原因 | 修改建议 |
 |------|-----|----------|----------|
-| `service/student_info.py:12-13` | 12-13 | `get_student_by_id` 在找不到学生时抛出 404，但错误信息是英文 "Student not found" | 统一错误信息语言为中文 |
-| `service/student_info.py:22-23` | 22-23 | `update_student_service` 错误信息是英文 "Student not found" | 统一错误信息语言为中文 |
-| `service/student_info.py:27-28` | 27-28 | `delete_student_service` 错误信息是英文 "Student not found" | 统一错误信息语言为中文 |
-| `service/student_info.py:32-33` | 32-33 | `restore_student_service` 错误信息是英文 "Student not found" | 统一错误信息语言为中文 |
-| `service/teacher.py:29-30` | 29-30 | `get_deleted_teachers_list` 在没有数据时抛出 404，但"未找到已删除的老师"不是真正的错误 | 考虑返回空列表而不是抛出异常 |
+| `service/teacher.py:27-28` | 27-28 | `get_deleted_teachers_list` 在没有数据时抛出 404，但"未找到已删除的老师"不是真正的错误 | 考虑返回空列表而不是抛出异常 |
 | `service/class_info_service.py:52-53` | 52-53 | `get_class_by_lecturer_id_service` 在没有数据时抛出 404，但"暂无班级数据"不是真正的错误 | 考虑返回空列表而不是抛出异常 |
 
 ### 7.3 异常捕获过于宽泛
@@ -276,30 +256,36 @@
 
 | 序号 | 问题编号 | 问题描述 | 修正状态 | 修正说明 |
 |------|----------|----------|----------|----------|
-| 1 | 1.1 | `schemas/class_info_schemas.py` 命名不统一 | 暂缓修正 | 需要重命名文件并更新所有引用，影响范围较大 |
-| 2 | 1.2 | `class_router` 命名不一致 | 暂缓修正 | 需要更新 `api/__init__.py` 和 `main.py` 中的引用 |
-| 3 | 1.3 | `Session_local` 命名不规范 | 已修正 | 改为 `SessionLocal`（符合 PEP8 类名规范） |
-| 4 | 1.4 | 变量名缩写问题 | 暂缓修正 | 涉及多个文件，影响范围较大 |
-| 5 | 2.1 | API 返回格式不统一（ORM 对象未序列化） | 已修正 | 所有 API 接口已统一使用 `response_model.dict().model_dump()` 序列化 |
-| 6 | 2.2 | 路由前缀不一致 | 暂缓修正 | 需要更新前端所有 API 调用 |
-| 7 | 2.3 | 分页参数命名不一致 | 暂缓修正 | 需要更新前端调用 |
-| 8 | 3.1 | Service 层架构风格不一致 | 暂缓修正 | 需要重构 employment service |
-| 9 | 3.2 | DAO 层架构风格不一致 | 暂缓修正 | 需要重构 employment dao |
-| 10 | 3.3 | Service 层过度透传 | 暂缓修正 | 架构设计决策，暂不修改 |
-| 11 | 3.4 | 循环导入风险 | 暂缓修正 | 当前使用延迟导入解决，暂不修改 |
-| 12 | 4.1-4.4 | 注释与文档问题 | 暂缓修正 | 需要大量补充文档 |
-| 13 | 5.1 | 数据库会话生命周期管理 | 已确认 | 当前实现正确，无需修改 |
-| 14 | 5.3 | 连接池配置 | 暂缓修正 | 当前配置可以工作 |
-| 15 | 7.2 | 错误信息语言不统一 | 已修正 | 所有错误信息已统一为中文 |
-| 16 | 7.3 | 异常捕获过于宽泛 | 暂缓修正 | 当前实现可以工作 |
+| 1 | 1.1 | `schemas/class_info_schemas.py` 命名不统一 | 已修正 | 重命名为 `class_info.py`，并更新所有引用 |
+| 2 | 1.1 | `dao/class_info_dao.py` 命名不统一 | 已修正 | 重命名为 `class_info.py`，并更新所有引用 |
+| 3 | 1.2 | 变量名缩写问题 | 暂缓修正 | 涉及多个文件，影响范围较大 |
+| 4 | 1.3 | `EmploymentDao` 类风格不一致 | 已修正 | 重构为函数式风格，与其他 DAO 模块保持一致 |
+| 5 | 2.1 | API 返回格式不统一（ORM 对象未序列化） | 已修正 | 在 Service 层统一添加 ORM 对象序列化，API 层移除重复序列化 |
+| 6 | 2.2 | 路由前缀不一致 | 已修正 | 统一为复数形式：`/students`, `/teachers`, `/employments`, `/classes`, `/scores` |
+| 7 | 2.3 | 分页参数命名不一致 | 暂缓修正 | 需要统一分页处理逻辑 |
+| 8 | 2.4 | 响应模型定义不一致 | 已修正 | 统一使用 `response_model=dict` |
+| 9 | 3.1 | Service 层架构风格不一致 | 已修正 | 重构 `service/employment.py` 为函数式风格 |
+| 10 | 3.2 | DAO 层架构风格不一致 | 已修正 | 重构 `dao/employment.py` 为函数式风格 |
+| 11 | 3.3 | Service 层过度透传 | 暂缓修正 | 架构设计决策，暂不修改 |
+| 12 | 3.4 | 循环导入风险 | 暂缓修正 | 当前使用延迟导入解决，暂不修改 |
+| 13 | 3.5 | API 层职责过重 | 已修正 | 将序列化逻辑移至 Service 层 |
+| 14 | 4.1-4.4 | 注释与文档问题 | 暂缓修正 | 需要大量补充文档 |
+| 15 | 5.1 | 数据库会话生命周期管理 | 已确认 | 当前实现正确，无需修改 |
+| 16 | 5.2 | 同步 IO 操作 | 已确认 | 当前实现无问题 |
+| 17 | 5.3 | 连接池配置 | 暂缓修正 | 当前配置可以工作 |
+| 18 | 6.1-6.3 | 依赖注入与配置 | 已确认 | 当前实现良好 |
+| 19 | 7.1 | 全局异常处理器 | 已确认 | 当前实现良好 |
+| 20 | 7.2 | 业务异常处理不当 | 暂缓修正 | 需要统一错误处理策略 |
+| 21 | 7.3 | 异常捕获过于宽泛 | 暂缓修正 | 当前实现可以工作 |
+| 22 | 7.4 | 异常处理遗漏 | 暂缓修正 | 当前全局异常处理器已覆盖 |
 
 ### 修正统计
 
 | 状态 | 数量 | 占比 |
 |------|------|------|
-| 已修正 | 4 | 25% |
-| 已确认无需修正 | 1 | 6.25% |
-| 暂缓修正 | 11 | 68.75% |
+| 已修正 | 10 | 45.5% |
+| 已确认无需修正 | 4 | 18.2% |
+| 暂缓修正 | 8 | 36.4% |
 | 无法修正 | 0 | 0% |
 
 ---
@@ -308,14 +294,14 @@
 
 ### 主要问题
 
-1. **架构风格不一致**：就业模块使用类 + 静态方法，其他模块使用函数式风格
-2. **API 返回格式不统一**：部分接口返回 ORM 对象未序列化
-3. **路由前缀不一致**：单复数混用
-4. **命名规范不统一**：文件命名、变量命名、函数命名存在多种风格
-5. **文档缺失**：模块级文档和函数 docstring 严重缺失
+1. **架构风格不一致**：就业模块使用类 + 静态方法，其他模块使用函数式风格 ✅ 已修正
+2. **API 返回格式不统一**：部分接口返回 ORM 对象未序列化 ✅ 已修正
+3. **路由前缀不一致**：单复数混用 ✅ 已修正
+4. **命名规范不统一**：文件命名、变量命名、函数命名存在多种风格 ✅ 部分修正
+5. **文档缺失**：模块级文档和函数 docstring 严重缺失 ⏸️ 暂缓修正
 
 ### 优先级建议
 
-1. **高优先级**：修复 API 返回格式不统一（ORM 对象序列化问题）
-2. **中优先级**：统一路由前缀、统一错误信息语言
-3. **低优先级**：补充文档、统一命名风格、重构架构风格
+1. **高优先级**：修复 API 返回格式不统一（ORM 对象序列化问题）✅ 已完成
+2. **中优先级**：统一路由前缀、统一架构风格 ✅ 已完成
+3. **低优先级**：补充文档、统一命名风格

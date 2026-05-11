@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function loadClasses() {
     try {
-        const res = await apiRequest('/class/all');
+        const res = await apiRequest('/classes/all');
         renderClasses(res || []);
     } catch (e) {
         console.error(e);
@@ -43,7 +43,7 @@ function openAddModal() {
 
 async function editClass(id) {
     try {
-        const res = await apiRequest(`/class/one/${id}`);
+        const res = await apiRequest(`/classes/one/${id}`);
         document.getElementById('modal_title').textContent = '编辑班级';
         document.getElementById('class_id').value = res.class_id;
         document.getElementById('form_class_name').value = res.class_name;
@@ -66,10 +66,10 @@ async function saveClass() {
     };
     try {
         if (id) {
-            await apiRequest(`/class/update/${id}`, 'PUT', data);
+            await apiRequest(`/classes/update/${id}`, 'PUT', data);
             showToast('修改成功', 'success');
         } else {
-            await apiRequest('/class/add', 'POST', data);
+            await apiRequest('/classes/add', 'POST', data);
             showToast('新增成功', 'success');
         }
         closeModal('class_modal');
@@ -82,7 +82,7 @@ async function saveClass() {
 async function deleteClass(id) {
     if (!confirm('确定要删除该班级吗？')) return;
     try {
-        await apiRequest(`/class/delete/${id}`, 'DELETE');
+        await apiRequest(`/classes/delete/${id}`, 'DELETE');
         showToast('删除成功', 'success');
         loadClasses();
     } catch (e) {
@@ -97,7 +97,7 @@ async function restoreClassById() {
         return;
     }
     try {
-        await apiRequest(`/class/restore/${classId}`, 'PUT');
+        await apiRequest(`/classes/restore/${classId}`, 'PUT');
         showToast('恢复成功', 'success');
         closeModal('restore_modal');
         document.getElementById('restore_class_id').value = '';
@@ -122,7 +122,7 @@ function loadMonthStats() {
 async function fetchMonthStats() {
     const month = document.getElementById('stats_month').value;
     try {
-        let url = '/class/count/month';
+        let url = '/classes/count/month';
         if (month) {
             url += `?month=${month}`;
         }
@@ -149,7 +149,7 @@ async function searchByLecturer() {
         return;
     }
     try {
-        const res = await apiRequest(`/class/class_by_lecturer_id/${lecturerId}`);
+        const res = await apiRequest(`/classes/class_by_lecturer_id/${lecturerId}`);
         let html = '<table><thead><tr><th>班级ID</th><th>班级名称</th><th>开班时间</th></tr></thead><tbody>';
         if (!res || res.length === 0) {
             html += '<tr><td colspan="3" style="text-align:center;">暂无数据</td></tr>';

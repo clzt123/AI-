@@ -2,7 +2,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 from models.class_info import ClassInfo
-from schemas.class_info_schemas import ClassResponse, ClassUpdate
+from schemas.class_info import ClassResponse, ClassUpdate
 
 
 def get_all_classes(db:Session):

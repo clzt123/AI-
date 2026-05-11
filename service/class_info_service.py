@@ -2,7 +2,7 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from starlette import status
 
-from dao.class_info_dao import get_all_classes, get_one_class, create_class, update_class, delete_class, \
+from dao.class_info import get_all_classes, get_one_class, create_class, update_class, delete_class, \
     restore_class, count_class_month, get_class_by_lecturer_id, check_class_exists, check_class_name_exists
 
 
