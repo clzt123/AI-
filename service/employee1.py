@@ -2,7 +2,7 @@
 # 全部使用 @staticmethod 静态方法
 from fastapi import HTTPException
 from dao.employee1 import *
-from schemas.employee1 import EmploymentResponse
+from schemas.employee1 import EmploymentResponse, EmploymentCreate, EmploymentUpdate
 
 
 class EmploymentService:
@@ -15,8 +15,6 @@ class EmploymentService:
     @staticmethod
     def get_by_salary_range_service(db: Session, salary_min: int, salary_max: int):
         emp_list = EmploymentDao.get_by_salary_range(db, salary_min, salary_max)
-        if not emp_list:
-            raise HTTPException(404, "该薪资区间暂无就业信息")
         return emp_list
 
     #就业统计模块分析
@@ -55,7 +53,7 @@ class EmploymentService:
 
     #新增就业数据，通过service处理业务
     @staticmethod
-    def create_employment_service(db:Session,data:CreateEmployment):
+    def create_employment_service(db:Session,data:EmploymentCreate):
         #通过学号来判断是否重复，然后通过前端传入的完整请求体新增就业数据！
         exist = EmploymentDao.get_student_no_by(db,data.student_no)
         if exist:
@@ -64,7 +62,7 @@ class EmploymentService:
 
     #修改前端传过来的就业数据,在service层做简单的业务处理
     @staticmethod
-    def update_employment_service(db:Session,employment_id:int,data:UpdateEmployment):
+    def update_employment_service(db:Session,employment_id:int,data:EmploymentUpdate):
         #直接通过就业主键id进行查询并修改对应就业信息
         emp = EmploymentDao.get_employment_id_by(db,employment_id)
         if not emp:

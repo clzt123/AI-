@@ -5,7 +5,7 @@ from typing import Optional
 from datetime import date
 
 
-class CreateEmployment(BaseModel):
+class EmploymentCreate(BaseModel):
     student_no: str = Field(pattern=r"^XS\d{7}$",description="学号")
     student_name: Optional[str] = Field(None)
     class_id: Optional[int] = Field(None)
@@ -21,7 +21,7 @@ class CreateEmployment(BaseModel):
         return value
 
 
-class UpdateEmployment(BaseModel):
+class EmploymentUpdate(BaseModel):
     student_name: Optional[str] = Field(None, description="学生姓名")
     class_id: Optional[int] = Field(None, description="班级id")
     job_open_time: Optional[date] = Field(None, description="就业开始时间")

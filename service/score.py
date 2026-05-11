@@ -1,15 +1,10 @@
 from fastapi import HTTPException
 from sqlalchemy.exc import SQLAlchemyError
 from dao.score import *
-from models.score import Score_DB
 from schemas.score import ScoreCreate, ScoreUpdate
 
 def add_score_service(db, score: ScoreCreate):
-    exists = db.query(Score_DB).filter(
-        Score_DB.student_no == score.student_no,
-        Score_DB.exam_order == score.exam_order,
-        Score_DB.is_deleted == 0
-    ).first()
+    exists = check_score_exists(db, score.student_no, score.exam_order)
     if exists:
         raise HTTPException(
             status_code=409,

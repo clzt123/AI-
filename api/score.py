@@ -31,7 +31,7 @@ def update_score(id: int, update_data: ScoreUpdate, db: Session = Depends(get_db
 @score_router.delete("/scores/{id}", summary="删除成绩")
 def delete_score(id: int, db: Session = Depends(get_db)):
     delete_score_service(db, id)
-    return {"code":200,"message":"删除成功"}
+    return {"code":200,"message":"删除成功","data":None}
 
 @score_router.put("/scores/delete/restore", summary="批量/单条恢复已删除成绩")
 def restore_score(
@@ -41,7 +41,7 @@ def restore_score(
     db: Session = Depends(get_db)
 ):
     count = restore_score_service(db, id, student_no, exam_order)
-    return {"code": 200, "message": f"恢复成功，共恢复 {count} 条"}
+    return {"code": 200, "message": f"恢复成功，共恢复 {count} 条", "data": {"count": count}}
 
 @score_router.get("/scores/all-above-80", summary="查询80分以上学生")
 def all_above_80(db: Session = Depends(get_db)):

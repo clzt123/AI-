@@ -1,6 +1,6 @@
 from fastapi import APIRouter,Depends,HTTPException,Query
 
-from schemas.employee1 import EmploymentResponse
+from schemas.employee1 import EmploymentResponse, EmploymentCreate, EmploymentUpdate
 from service.employee1 import *
 from database import get_db
 #路由接口
@@ -48,7 +48,7 @@ def get_employment_statistics(db:Session = Depends(get_db)):
 
 #新增就业信息接口
 @router.post("/",response_model=dict)    #接口统一包裹成字典格式
-def create_employment_api(data:CreateEmployment,db:Session = Depends(get_db)):
+def create_employment_api(data:EmploymentCreate,db:Session = Depends(get_db)):
     emp = EmploymentService.create_employment_service(db,data)
     return {"code": 200,
             "message": "添加成功",
@@ -66,7 +66,7 @@ def get_student_no_api(student_no:str,db:Session = Depends(get_db)):
 
 #通过就业id查询并修改就业信息
 @router.put("/{employment_id}",response_model=dict)
-def update_employment_api(employment_id:int,data:UpdateEmployment,db:Session = Depends(get_db)):
+def update_employment_api(employment_id:int,data:EmploymentUpdate,db:Session = Depends(get_db)):
     emp = EmploymentService.update_employment_service(db,employment_id,data)
     return {"code": 200,
             "message": "修改成功",

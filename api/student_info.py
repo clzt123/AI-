@@ -7,7 +7,7 @@ from service.student_info import *
 router = APIRouter(prefix="/students", tags=["学生管理"])
 
 @router.post("/create", response_model=StudentResponse)
-def create_student_api(s: StudentCreate, db: Session = Depends(get_db)):
+def create_student_route(s: StudentCreate, db: Session = Depends(get_db)):
     return create_student(db, s)
 
 @router.get("/check", response_model=StudentListResponse)
@@ -29,7 +29,7 @@ def get_gender_stats(db: Session = Depends(get_db)):
     return check_student_gender(db)
 
 @router.get("/check/{id}", response_model=StudentResponse)
-def get_student_by_id_api(id: int, db: Session=Depends(get_db)):
+def get_student_by_id_route(id: int, db: Session=Depends(get_db)):
     return get_student_by_id(db, id)
 
 @router.put("/update/{id}", response_model=StudentResponse)
@@ -42,7 +42,7 @@ def delete_student(id:int, db:Session=Depends(get_db)):
     return {"code": 200, "message": "删除成功", "data": None}
 
 @router.put("/restore/{id}")
-def restore_api(id: int, db:Session=Depends(get_db)):
+def restore_student_route(id: int, db:Session=Depends(get_db)):
     restore_student_service(db, id)
     return {"code": 200, "message": "恢复成功", "data": None}
 

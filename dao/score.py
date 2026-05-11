@@ -14,6 +14,13 @@ def add_score_dao(db: Session, score: ScoreCreate):
     db.refresh(item)
     return item
 
+def check_score_exists(db: Session, student_no: str, exam_order: int):
+    return db.query(Score_DB).filter(
+        Score_DB.student_no == student_no,
+        Score_DB.exam_order == exam_order,
+        Score_DB.is_deleted == 0
+    ).first()
+
 def get_comprehensive_scores(db: Session, id=None, student_no=None, exam_order=None, page=1, size=10):
     q = db.query(Score_DB).filter(Score_DB.is_deleted == 0)
     if id:
