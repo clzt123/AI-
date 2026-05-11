@@ -3,37 +3,37 @@ from sqlalchemy.orm import Session
 from dao.teacher import *
 from schemas.teacher import TeacherUpdate
 
-def judge_get_all_teachers(db: Session):
+def get_all_teachers_list(db: Session):
     teachers = get_all_teachers(db)
     if not teachers:
         raise HTTPException(status_code=404, detail="数据库中暂无老师数据")
     return teachers
 
-def judge_get_teacher(db: Session, teacher_id: int):
+def get_teacher(db: Session, teacher_id: int):
     tea = get_teacher_by_id(db, teacher_id)
     if not tea:
         raise HTTPException(status_code=404, detail="老师不存在")
     return tea
 
-def judge_get_teachers(db: Session, teacher_name=None, gender=None, page=1, page_size=10):
+def get_teachers_list(db: Session, teacher_name=None, gender=None, page=1, page_size=10):
     total, data = get_teacher_by_conditions(db, teacher_name, gender, page, page_size)
     if total == 0:
         raise HTTPException(status_code=404, detail="未找到符合条件的老师")
     return total, data
 
-def judge_get_deleted_teachers(db: Session, page=1, page_size=10):
+def get_deleted_teachers_list(db: Session, page=1, page_size=10):
     total, data = get_deleted_teachers(db, page, page_size)
     if total == 0:
         raise HTTPException(status_code=404, detail="未找到已删除的老师")
     return total, data
 
-def judge_update_teacher(db: Session, teacher_id: int, data: TeacherUpdate):
+def update_teacher_service(db: Session, teacher_id: int, data: TeacherUpdate):
     tea = update_teacher(db, teacher_id, data)
     if not tea:
         raise HTTPException(status_code=404, detail="老师不存在，无法更新")
     return tea
 
-def judge_delete_teacher(db: Session, teacher_id: int):
+def delete_teacher_service(db: Session, teacher_id: int):
     if not check_teacher_exists_any(db, teacher_id):
         raise HTTPException(status_code=404, detail="老师ID不存在")
     if check_teacher_deleted(db, teacher_id):
@@ -43,7 +43,7 @@ def judge_delete_teacher(db: Session, teacher_id: int):
         raise HTTPException(status_code=500, detail="删除操作失败")
     return {"message": "删除成功"}
 
-def judge_restore_teacher(db: Session, teacher_id: int):
+def restore_teacher_service(db: Session, teacher_id: int):
     if not check_teacher_deleted(db, teacher_id):
         raise HTTPException(status_code=404, detail="老师不存在或未被删除")
 
@@ -52,5 +52,6 @@ def judge_restore_teacher(db: Session, teacher_id: int):
         raise HTTPException(status_code=500, detail="恢复操作失败")
     return restored_tea
 
-def judge_get_stats(db: Session):
-    return get_teacher_stats(db)
+def get_teacher_stats_service(db: Session):
+    from dao.teacher import get_teacher_stats as dao_get_teacher_stats
+    return dao_get_teacher_stats(db)

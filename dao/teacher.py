@@ -1,39 +1,52 @@
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import SQLAlchemyError
 from models.teacher import Teacher
 from schemas.teacher import TeacherCreate, TeacherUpdate
 
 # 新增老师
 def create_teacher(db: Session, t: TeacherCreate):
-    db_tea = Teacher(**t.model_dump())
-    db.add(db_tea)
-    db.commit()
-    db.refresh(db_tea)
-    return db_tea
+    try:
+        db_tea = Teacher(**t.model_dump())
+        db.add(db_tea)
+        db.commit()
+        db.refresh(db_tea)
+        return db_tea
+    except SQLAlchemyError:
+        db.rollback()
+        raise
 
 # 更新老师
 def update_teacher(db: Session, teacher_id: int, data: TeacherUpdate):
-    tea = db.query(Teacher).filter(
-        Teacher.teacher_id == teacher_id,
-        Teacher.is_deleted == 0
-    ).first()
-    if not tea:
-        return None
-    for key, value in data.model_dump(exclude_unset=True).items():
-        setattr(tea, key, value)
-    db.commit()
-    db.refresh(tea)
-    return tea
+    try:
+        tea = db.query(Teacher).filter(
+            Teacher.teacher_id == teacher_id,
+            Teacher.is_deleted == 0
+        ).first()
+        if not tea:
+            return None
+        for key, value in data.model_dump(exclude_unset=True).items():
+            setattr(tea, key, value)
+        db.commit()
+        db.refresh(tea)
+        return tea
+    except SQLAlchemyError:
+        db.rollback()
+        raise
 
 # 逻辑删除
 def delete_teacher(db: Session, teacher_id: int):
-    tea = db.query(Teacher).filter(
-        Teacher.teacher_id == teacher_id
-    ).first()
-    if not tea:
-        return False
-    tea.is_deleted = 1
-    db.commit()
-    return True
+    try:
+        tea = db.query(Teacher).filter(
+            Teacher.teacher_id == teacher_id
+        ).first()
+        if not tea:
+            return False
+        tea.is_deleted = 1
+        db.commit()
+        return True
+    except SQLAlchemyError:
+        db.rollback()
+        raise
 
 #查询所有老师信息
 def get_all_teachers(db: Session):
@@ -69,16 +82,20 @@ def get_deleted_teachers(db: Session, page=1, page_size=10):
 
 #恢复已删除老师
 def restore_teacher(db: Session, teacher_id: int):
-    tea = db.query(Teacher).filter(
-        Teacher.teacher_id == teacher_id,
-        Teacher.is_deleted == 1
-    ).first()
-    if not tea:
-        return False
-    tea.is_deleted = 0
-    db.commit()
-    db.refresh(tea)
-    return tea
+    try:
+        tea = db.query(Teacher).filter(
+            Teacher.teacher_id == teacher_id,
+            Teacher.is_deleted == 1
+        ).first()
+        if not tea:
+            return False
+        tea.is_deleted = 0
+        db.commit()
+        db.refresh(tea)
+        return tea
+    except SQLAlchemyError:
+        db.rollback()
+        raise
 
 from sqlalchemy import func
 

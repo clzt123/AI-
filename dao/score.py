@@ -5,77 +5,45 @@ from database import *
 from models.score import Score_DB
 from models.student_info import Student
 from schemas.score import ScoreCreate, ScoreUpdate
-# 从集合模块导入默认字典，自动为不存在的键初始化空值
 from collections import defaultdict
 
-# 添加成绩数据访问层方法：操作数据库添加成绩
 def add_score_dao(db: Session, score: ScoreCreate):
-    # 创建成绩数据库对象，is_deleted=0表示未删除
     item = Score_DB(**score.model_dump(), is_deleted=0)
-    # 将对象添加到数据库会话
     db.add(item)
-    # 提交事务，保存到数据库
     db.commit()
-    # 刷新对象，同步数据库最新数据
     db.refresh(item)
-    # 返回添加后的成绩数据
     return item
 
-# 综合查询数据访问层方法：多条件+分页查询成绩
 def get_comprehensive_scores(db: Session, id=None, student_no=None, exam_order=None, page=1, size=10):
-    # 基础查询：查询未删除的成绩数据
     q = db.query(Score_DB).filter(Score_DB.is_deleted == 0)
-    # ID 模糊查询
     if id:
         q = q.filter(Score_DB.id.like(f"%{id}%"))
-    # 学号 模糊查询
     if student_no:
         q = q.filter(Score_DB.student_no.like(f"%{student_no}%"))
-    # 考试序号 模糊查询
     if exam_order:
         q = q.filter(Score_DB.exam_order.like(f"%{exam_order}%"))
-    # 查询总条数
     total = q.count()
-    # 分页查询：偏移量+限制条数
     data_list = q.offset((page - 1) * size).limit(size).all()
-    # 返回查询结果列表和总条数
     return data_list, total
 
-
-# 修改成绩数据访问层方法：根据id修改成绩分数
 def update_score_dao(db: Session, id: int, data: ScoreUpdate):
-    # 查询指定id且未删除的成绩数据
     item = db.query(Score_DB).filter_by(id=id, is_deleted=0).first()
-    # 如果数据存在
     if item:
-        # 修改成绩分数
         item.score = data.score
-        # 提交事务
         db.commit()
-        # 刷新对象
         db.refresh(item)
-    # 返回修改后的数据（不存在返回None）
     return item
 
-# 删除成绩数据访问层方法：逻辑删除（修改删除标记）
 def delete_score_dao(db: Session, id: int):
-    # 查询指定id且未删除的成绩数据
     item = db.query(Score_DB).filter_by(id=id, is_deleted=0).first()
-    # 如果数据存在
     if item:
-        # 设置删除标记为1（已删除）
         item.is_deleted = 1
-        # 提交事务
         db.commit()
-    # 返回删除后的数据（不存在返回None）
     return item
 
-# 多条件模糊查询【已删除】的成绩数据，返回列表
 def get_deleted_scores_dao(db: Session, id: int = None, student_no: str = None, exam_order: int = None):
-    # 只查已删除的数据
     query = db.query(Score_DB).filter(Score_DB.is_deleted == 1)
 
-    # 多条件模糊查询
     if id is not None:
         query = query.filter(Score_DB.id.like(f"%{id}%"))
     if student_no:
@@ -83,7 +51,6 @@ def get_deleted_scores_dao(db: Session, id: int = None, student_no: str = None, 
     if exam_order is not None:
         query = query.filter(Score_DB.exam_order.like(f"%{exam_order}%"))
 
-    # 返回查询到的【已删除数据列表】
     return query.all()
 
 # 查询每次考核成绩大于80的学生

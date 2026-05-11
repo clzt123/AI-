@@ -10,7 +10,7 @@ router = APIRouter(prefix="/teacher", tags=["老师管理模块"])
 
 @router.get('/all', response_model=list[TeacherResponse])
 def get_all_teachers(db: Session = Depends(get_db)):
-    teachers = judge_get_all_teachers(db)
+    teachers = get_all_teachers_list(db)
     return teachers
 
 @router.post('/create', response_model=TeacherResponse)
@@ -25,7 +25,7 @@ def list_teachers(
     page_size: int = 10,
     db: Session = Depends(get_db)
 ):
-    total, data = judge_get_teachers(db, teacher_name, gender, page, page_size)
+    total, data = get_teachers_list(db, teacher_name, gender, page, page_size)
     return {
         "code": 200,
         "message": "查询成功",
@@ -36,16 +36,16 @@ def list_teachers(
     }
 
 @router.get('/check/{teacher_id}', response_model=TeacherResponse)
-def get_teacher_by_id(teacher_id: int, db: Session = Depends(get_db)):
-    return judge_get_teacher(db, teacher_id)
+def get_teacher_by_id_api(teacher_id: int, db: Session = Depends(get_db)):
+    return get_teacher(db, teacher_id)
 
 @router.put('/update/{teacher_id}', response_model=TeacherResponse)
 def update_teacher_api(teacher_id: int, data: TeacherUpdate, db: Session = Depends(get_db)):
-    return judge_update_teacher(db, teacher_id, data)
+    return update_teacher_service(db, teacher_id, data)
 
 @router.delete('/delete/{teacher_id}')
-def delete_teacher(teacher_id: int, db: Session = Depends(get_db)):
-    judge_delete_teacher(db, teacher_id)
+def delete_teacher_api(teacher_id: int, db: Session = Depends(get_db)):
+    delete_teacher_service(db, teacher_id)
     return {"code": 200, "message": "删除成功", "data": None}
 
 @router.get('/deleted', response_model=TeacherListResponse)
@@ -54,7 +54,7 @@ def list_deleted_teachers(
     page_size: int = 10,
     db: Session = Depends(get_db)
 ):
-    total, data = judge_get_deleted_teachers(db, page, page_size)
+    total, data = get_deleted_teachers_list(db, page, page_size)
     return {
         "code": 200,
         "message": "查询成功",
@@ -66,8 +66,8 @@ def list_deleted_teachers(
 
 @router.put('/restore/{teacher_id}', response_model=TeacherResponse)
 def restore_teacher_api(teacher_id: int, db: Session = Depends(get_db)):
-    return judge_restore_teacher(db, teacher_id)
+    return restore_teacher_service(db, teacher_id)
 
 @router.get('/stats', response_model=TeacherStatsResponse)
 def get_stats(db: Session = Depends(get_db)):
-    return judge_get_stats(db)
+    return get_teacher_stats_service(db)

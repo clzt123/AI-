@@ -10,17 +10,17 @@ from dao.class_info_dao import get_all_classinfo, get_one_classinfo, put_update_
 #所有班级信息：
 def get_all_classinfo_service(db:Session):
     # 1. 调用dao层查询数据
-    all_cls_service = get_all_classinfo(db)
-    if not all_cls_service:
+    all_classes = get_all_classinfo(db)
+    if not all_classes:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="暂无班级数据")
-    return all_cls_service
+    return all_classes
 
 #查询单个班级学生信息：
 def get_one_classinfo_service(db:Session,class_id:int):
-    one_cls_service = get_one_classinfo(db,class_id)
-    if not one_cls_service:
+    class_info = get_one_classinfo(db,class_id)
+    if not class_info:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="暂无班级数据")
-    return one_cls_service
+    return class_info
 
 #添加班级：
 def post_add_class_service(db: Session, cls_data):

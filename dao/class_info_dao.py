@@ -1,6 +1,7 @@
 #导入模块
 from sqlalchemy import func
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import SQLAlchemyError
 from models.class_info_models import ClassInfo
 from schemas.class_info_schemas import ClassResponse, ClassUpdate
 
@@ -17,41 +18,54 @@ def get_one_classinfo(db: Session,class_id: int):
 
 #3添加班级：
 def post_add_class(cls_data:ClassUpdate,db:Session):
-    new_class = ClassInfo(**cls_data.dict())
-    db.add(new_class)
-    db.commit()
-    db.refresh(new_class)
-    return new_class
+    try:
+        new_class = ClassInfo(**cls_data.dict())
+        db.add(new_class)
+        db.commit()
+        db.refresh(new_class)
+        return new_class
+    except SQLAlchemyError:
+        db.rollback()
+        raise
 
 #4改班级信息：
 def put_update_classinfo(class_id: int, update_data, db: Session):
-    # 1. 查询数据库里的真实班级对象
-    class_obj = db.query(ClassInfo).filter(ClassInfo.class_id == class_id, ClassInfo.is_deleted == 0).first()
-
-    # 2. 用前端数据更新数据库对象
-    for k, v in update_data.dict(exclude_unset=True).items():
-        setattr(class_obj, k, v)
-    db.commit()
-    db.refresh(class_obj)  # 这里必须是数据库对象！
-    return class_obj
+    try:
+        class_obj = db.query(ClassInfo).filter(ClassInfo.class_id == class_id, ClassInfo.is_deleted == 0).first()
+        for k, v in update_data.dict(exclude_unset=True).items():
+            setattr(class_obj, k, v)
+        db.commit()
+        db.refresh(class_obj)
+        return class_obj
+    except SQLAlchemyError:
+        db.rollback()
+        raise
 
 #5逻辑删除：
 def delete_class(class_id: int, db: Session):
-    cls = db.query(ClassInfo).filter(ClassInfo.class_id == class_id).first()
-    if not cls:
-        return None
-    cls.is_deleted = 1
-    db.commit()
-    return cls
+    try:
+        class_obj = db.query(ClassInfo).filter(ClassInfo.class_id == class_id).first()
+        if not class_obj:
+            return None
+        class_obj.is_deleted = 1
+        db.commit()
+        return class_obj
+    except SQLAlchemyError:
+        db.rollback()
+        raise
 
 #6恢复逻辑删除数据：
 def restore_class(class_id: int, db: Session):
-    cls = db.query(ClassInfo).filter(ClassInfo.class_id == class_id).first()
-    if not cls:
-        return None
-    cls.is_deleted = 0
-    db.commit()
-    return cls
+    try:
+        class_obj = db.query(ClassInfo).filter(ClassInfo.class_id == class_id).first()
+        if not class_obj:
+            return None
+        class_obj.is_deleted = 0
+        db.commit()
+        return class_obj
+    except SQLAlchemyError:
+        db.rollback()
+        raise
 
 def check_class_exists(db: Session, class_id: int, include_deleted=False):
     q = db.query(ClassInfo).filter(ClassInfo.class_id == class_id)

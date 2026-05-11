@@ -1,50 +1,79 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import func,case
+from sqlalchemy import func, case
+from sqlalchemy.exc import SQLAlchemyError
 from models.student_info import Student
 from schemas.student_info import StudentCreate, StudentUpdate
 
 # 创建：数据库自动生成id
-def create_student(db: Session, s: StudentCreate): #创建数据库会话，导入前端传入的数据
-    db_stu = Student(** s.model_dump()) #把前端传入的数据转换成数据库模型，把前端传的json转成字典，**代表解包，导入模型
-    db.add(db_stu) #添加到会话
-    db.commit() #提交到数据库
-    db.refresh(db_stu) #数据库更新
-    return db_stu
+def create_student(db: Session, s: StudentCreate):
+    try:
+        db_stu = Student(** s.model_dump())
+        db.add(db_stu)
+        db.commit()
+        db.refresh(db_stu)
+        return db_stu
+    except SQLAlchemyError:
+        db.rollback()
+        raise
 
 # 查询按 id（主键）
 def get_student(db: Session, id: int):
-    return db.query(Student).filter(Student.id == id,Student.is_deleted == 0).first() #返回查询到的第一条数据
+    return db.query(Student).filter(Student.id == id,Student.is_deleted == 0).first()
 
 # 条件查询
 def get_students(db: Session, student_name=None, class_id=None, page=1, page_size=10):
-    q = db.query(Student) #查询表
-    q = q.filter(Student.is_deleted == 0) #筛选未被删除的
+    q = db.query(Student)
+    q = q.filter(Student.is_deleted == 0)
     if student_name:
-        q = q.filter(Student.student_name.contains(student_name)) #按照姓名模糊查询
+        q = q.filter(Student.student_name.contains(student_name))
     if class_id:
-        q = q.filter(Student.class_id==class_id) #按照班级id查询
-    total = q.count() #统计总条数
-    data = q.offset((page-1)*page_size).limit(page_size).all() #分页查询当前数据
+        q = q.filter(Student.class_id==class_id)
+    total = q.count()
+    data = q.offset((page-1)*page_size).limit(page_size).all()
     return total, data
 
 # 更新按 id
 def update_student(db: Session, id: int, data: StudentUpdate):
-    stu = db.query(Student).filter(Student.id == id,Student.is_deleted == 0).first() #查询未被删除的学生
-    if not stu:
-        return None
-    for k, v in data.model_dump(exclude_unset=True).items(): #只更新前端传来的字段，对传来的字段进行遍历
-        setattr(stu, k, v) #修改前端传来的新值
-    db.commit()
-    db.refresh(stu) 
-    return stu
+    try:
+        stu = db.query(Student).filter(Student.id == id,Student.is_deleted == 0).first()
+        if not stu:
+            return None
+        for k, v in data.model_dump(exclude_unset=True).items():
+            setattr(stu, k, v)
+        db.commit()
+        db.refresh(stu) 
+        return stu
+    except SQLAlchemyError:
+        db.rollback()
+        raise
 
-# if data.student_name:
-#     stu.student_name = data.student_name
-# if data.age:
-#     stu.age = data.age
-# if data.gender:
-#     stu.gender = data.gender
+# 删除按 id
+def delete_student(db: Session, id: int):
+    try:
+        stu = db.query(Student).filter(Student.id == id,Student.is_deleted == 0).first()
+        if not stu:
+            return False
+        stu.is_deleted = 1
+        db.commit()
+        return True
+    except SQLAlchemyError:
+        db.rollback()
+        raise
 
+#恢复学生数据
+def restore_student(db: Session, id: int):
+    try:
+        stu = db.query(Student).filter(Student.id == id,Student.is_deleted == 1).first()
+        if not stu:
+            return False
+        stu.is_deleted = 0
+        db.commit()
+        return True
+    except SQLAlchemyError:
+        db.rollback()
+        raise
+
+#查询已删除学生的数据
 # 删除按 id
 def delete_student(db: Session, id: int):
     stu = db.query(Student).filter(Student.id == id,Student.is_deleted == 0).first()
