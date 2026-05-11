@@ -20,13 +20,25 @@ def list_students(
     total, data = get_students_list(db, student_name, class_id, page, page_size)
     return {"code": 200, "message": "查询成功", "total":total, "data":data, "page":page, "page_size":page_size}
 
-@router.get("/age_stats", response_model=List[StudentResponse])
+@router.get("/age_stats")
 def get_age_stats(db: Session = Depends(get_db)):
-    return check_student_age(db)
+    data = check_student_age(db)
+    result = []
+    for s in data:
+        result.append({
+            "id": s.id,
+            "student_no": s.student_no,
+            "student_name": s.student_name,
+            "gender": s.gender,
+            "age": s.age,
+            "class_id": s.class_id
+        })
+    return {"code": 200, "message": "查询成功", "data": result}
 
 @router.get("/gender_stats")
 def get_gender_stats(db: Session = Depends(get_db)):
-    return check_student_gender(db)
+    data = check_student_gender(db)
+    return {"code": 200, "message": "查询成功", "data": data}
 
 @router.get("/check/{id}", response_model=StudentResponse)
 def get_student_by_id_route(id: int, db: Session=Depends(get_db)):
