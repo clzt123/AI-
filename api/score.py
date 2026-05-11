@@ -6,17 +6,17 @@ from service.score import (
     get_all_above_80_service, get_multiple_fail_service, get_class_avg_service
 )
 from schemas.score import (
-    ScoreCreate, ScoreUpdate, ScoreResponse, Score_Page_Response,
+    ScoreCreate, ScoreUpdate, ScoreResponse, ScoreResponseItem, Score_Page_Response,
     StudentFailResponse, ClassAvgScoreResponse
 )
 from database import get_db
 
 score_router = APIRouter()
 
-@score_router.post('/scores', response_model=ScoreResponse, summary="添加成绩")
+@score_router.post('/scores', response_model=dict, summary="添加成绩")
 def add_score(score: ScoreCreate, db: Session = Depends(get_db)):
     result = add_score_service(db, score)
-    return {"code": 200, "message": "添加成功", "data": result}
+    return {"code": 200, "message": "添加成功", "data": ScoreResponseItem.model_validate(result).model_dump()}
 
 @score_router.get('/scores', response_model=Score_Page_Response, summary="综合查询成绩")
 def get_scores(
@@ -33,7 +33,7 @@ def get_scores(
 @score_router.put("/scores/{id}", summary="修改成绩")
 def update_score(id: int, update_data: ScoreUpdate, db: Session = Depends(get_db)):
     data = update_score_service(db, id, update_data)
-    return {"code":200,"message":"修改成功","data":data}
+    return {"code":200,"message":"修改成功","data": ScoreResponseItem.model_validate(data).model_dump() if data else None}
 
 @score_router.delete("/scores/{id}", summary="删除成绩")
 def delete_score(id: int, db: Session = Depends(get_db)):

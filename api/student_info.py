@@ -17,9 +17,10 @@ from service.student_info import (
 
 router = APIRouter(prefix="/students", tags=["学生管理"])
 
-@router.post("/create", response_model=StudentResponse)
+@router.post("/create", response_model=dict)
 def create_student_route(s: StudentCreate, db: Session = Depends(get_db)):
-    return create_student(db, s)
+    result = create_student(db, s)
+    return {"code": 200, "message": "添加成功", "data": StudentResponse.model_validate(result).model_dump()}
 
 @router.get("/check", response_model=StudentListResponse)
 def list_students(
@@ -51,13 +52,15 @@ def get_gender_stats(db: Session = Depends(get_db)):
     data = check_student_gender(db)
     return {"code": 200, "message": "查询成功", "data": data}
 
-@router.get("/check/{id}", response_model=StudentResponse)
+@router.get("/check/{id}", response_model=dict)
 def get_student_by_id_route(id: int, db: Session=Depends(get_db)):
-    return get_student_by_id(db, id)
+    result = get_student_by_id(db, id)
+    return {"code": 200, "message": "查询成功", "data": StudentResponse.model_validate(result).model_dump()}
 
-@router.put("/update/{id}", response_model=StudentResponse)
+@router.put("/update/{id}", response_model=dict)
 def update_student(id:int, s:StudentUpdate, db:Session=Depends(get_db)):
-    return update_student_service(db, id, s)
+    result = update_student_service(db, id, s)
+    return {"code": 200, "message": "修改成功", "data": StudentResponse.model_validate(result).model_dump()}
 
 @router.delete("/delete/{id}", response_model=dict)
 def delete_student(id:int, db:Session=Depends(get_db)):

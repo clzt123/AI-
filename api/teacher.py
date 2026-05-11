@@ -21,11 +21,12 @@ router = APIRouter(prefix="/teacher", tags=["老师管理模块"])
 @router.get('/all', response_model=dict)
 def get_all_teachers(db: Session = Depends(get_db)):
     teachers = get_all_teachers_list(db)
-    return {"code": 200, "message": "查询成功", "data": teachers}
+    return {"code": 200, "message": "查询成功", "data": [TeacherResponse.model_validate(t).model_dump() for t in teachers]}
 
 @router.post('/create', response_model=dict)
 def add_teacher(t: TeacherCreate, db: Session = Depends(get_db)):
-    return {"code": 200, "message": "添加成功", "data": create_teacher(db, t)}
+    result = create_teacher(db, t)
+    return {"code": 200, "message": "添加成功", "data": TeacherResponse.model_validate(result).model_dump()}
 
 @router.get('/check', response_model=TeacherListResponse)
 def list_teachers(
@@ -47,11 +48,13 @@ def list_teachers(
 
 @router.get('/check/{teacher_id}', response_model=dict)
 def get_teacher_by_id(teacher_id: int, db: Session = Depends(get_db)):
-    return {"code": 200, "message": "查询成功", "data": get_teacher(db, teacher_id)}
+    result = get_teacher(db, teacher_id)
+    return {"code": 200, "message": "查询成功", "data": TeacherResponse.model_validate(result).model_dump()}
 
 @router.put('/update/{teacher_id}', response_model=dict)
 def update_teacher(teacher_id: int, data: TeacherUpdate, db: Session = Depends(get_db)):
-    return {"code": 200, "message": "修改成功", "data": update_teacher_service(db, teacher_id, data)}
+    result = update_teacher_service(db, teacher_id, data)
+    return {"code": 200, "message": "修改成功", "data": TeacherResponse.model_validate(result).model_dump()}
 
 @router.delete('/delete/{teacher_id}', response_model=dict)
 def delete_teacher(teacher_id: int, db: Session = Depends(get_db)):

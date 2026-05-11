@@ -10,7 +10,7 @@ def create_student(db: Session, s: StudentCreate):
 def get_student_by_id(db: Session, id: int):
     stu = dao.get_student(db=db, id=id)
     if not stu:
-        raise HTTPException(status_code=404, detail="Student not found")
+        raise HTTPException(status_code=404, detail="学生不存在")
     return stu
 
 def get_students_list(db: Session, student_name=None, class_id=None, page=1, page_size=10):
@@ -20,19 +20,19 @@ def get_students_list(db: Session, student_name=None, class_id=None, page=1, pag
 def update_student_service(db: Session, id: int, data: StudentUpdate):
     stu = dao.update_student(db=db, id=id, data=data)
     if not stu:
-        raise HTTPException(status_code=404, detail="Student not found")
+        raise HTTPException(status_code=404, detail="学生不存在")
     return stu
 
 def delete_student_service(db: Session, id: int):
     stu = dao.delete_student(db=db, id=id)
     if not stu:
-        raise HTTPException(status_code=404, detail="Student not found")
+        raise HTTPException(status_code=404, detail="学生不存在")
     return stu
 
 def restore_student_service(db: Session, id: int):
     stu = dao.restore_student(db=db, id=id)
     if not stu:
-        raise HTTPException(status_code=404, detail="Student not found")
+        raise HTTPException(status_code=404, detail="学生不存在")
     return stu
 
 def get_deleted_student_list(db: Session, student_name=None,page=1, page_size=10):
