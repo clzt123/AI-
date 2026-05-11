@@ -3,23 +3,20 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from starlette import status
 
-from dao.class_info_dao import get_all_classinfo, get_one_classinfo, put_update_classinfo, post_add_class, delete_class, \
+from dao.class_info_dao import get_all_classes, get_one_class, put_update_classinfo, post_add_class, delete_class, \
     restore_class, count_class_month, get_class_by_lecturer_id, check_class_exists, check_class_name_exists
 
 
 #所有班级信息：
 def get_all_classinfo_service(db:Session):
-    # 1. 调用dao层查询数据
-    all_classes = get_all_classinfo(db)
-    if not all_classes:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="暂无班级数据")
-    return all_classes
+    all_classes = get_all_classes(db)
+    return all_classes if all_classes else []
 
 #查询单个班级学生信息：
 def get_one_classinfo_service(db:Session,class_id:int):
-    class_info = get_one_classinfo(db,class_id)
+    class_info = get_one_class(db,class_id)
     if not class_info:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="暂无班级数据")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="班级不存在")
     return class_info
 
 #添加班级：

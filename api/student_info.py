@@ -1,8 +1,19 @@
 from fastapi import APIRouter, Depends, HTTPException
 from database import get_db
-from schemas.student_info import *
+from sqlalchemy.orm import Session
+from schemas.student_info import StudentResponse, StudentCreate, StudentUpdate, StudentListResponse
 from typing import Optional
-from service.student_info import *
+from service.student_info import (
+    create_student,
+    get_students_list,
+    check_student_age,
+    check_student_gender,
+    get_student_by_id,
+    update_student_service,
+    delete_student_service,
+    restore_student_service,
+    get_deleted_student_list
+)
 
 router = APIRouter(prefix="/students", tags=["学生管理"])
 
@@ -20,7 +31,7 @@ def list_students(
     total, data = get_students_list(db, student_name, class_id, page, page_size)
     return {"code": 200, "message": "查询成功", "total":total, "data":data, "page":page, "page_size":page_size}
 
-@router.get("/age_stats")
+@router.get("/age_stats", response_model=dict)
 def get_age_stats(db: Session = Depends(get_db)):
     data = check_student_age(db)
     result = []
@@ -35,7 +46,7 @@ def get_age_stats(db: Session = Depends(get_db)):
         })
     return {"code": 200, "message": "查询成功", "data": result}
 
-@router.get("/gender_stats")
+@router.get("/gender_stats", response_model=dict)
 def get_gender_stats(db: Session = Depends(get_db)):
     data = check_student_gender(db)
     return {"code": 200, "message": "查询成功", "data": data}

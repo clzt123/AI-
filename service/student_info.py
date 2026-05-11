@@ -1,8 +1,11 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from dao import student_info as dao
-from schemas.student_info import StudentResponse, StudentUpdate
+from schemas.student_info import StudentCreate, StudentResponse, StudentUpdate
 
+
+def create_student(db: Session, s: StudentCreate):
+    return dao.create_student(db, s)
 
 def get_student_by_id(db: Session, id: int):
     stu = dao.get_student(db=db, id=id)

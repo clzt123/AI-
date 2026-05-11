@@ -1,7 +1,8 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import func
-from models.employee1 import Employment
-from schemas.employee1 import EmploymentCreate, EmploymentUpdate
+from sqlalchemy.exc import SQLAlchemyError
+from models.employment import Employment
+from schemas.employment import EmploymentCreate, EmploymentUpdate
 
 
 class EmploymentDao:
@@ -52,32 +53,48 @@ class EmploymentDao:
                                            Employment.is_deleted == 0).first()
 
     def create_employment(db:Session,data:EmploymentCreate):
-        emp = Employment(**data.model_dump())
-        db.add(emp)
-        db.commit()
-        db.refresh(emp)
-        return emp
+        try:
+            emp = Employment(**data.model_dump())
+            db.add(emp)
+            db.commit()
+            db.refresh(emp)
+            return emp
+        except SQLAlchemyError:
+            db.rollback()
+            raise
 
     def update_employment(db:Session,employment_id:int,data:EmploymentUpdate):
-        db.query(Employment).filter(Employment.employment_id == employment_id,
-                                    Employment.is_deleted == 0).update(data.model_dump(exclude_unset=True))
-        db.commit()
+        try:
+            db.query(Employment).filter(Employment.employment_id == employment_id,
+                                        Employment.is_deleted == 0).update(data.model_dump(exclude_unset=True))
+            db.commit()
+        except SQLAlchemyError:
+            db.rollback()
+            raise
 
     def delete_employment(db:Session,employment_id:int):
-        db.query(Employment).filter(
-            Employment.employment_id == employment_id
-        ).update({"is_deleted":1})
-        db.commit()
-        return employment_id
+        try:
+            db.query(Employment).filter(
+                Employment.employment_id == employment_id
+            ).update({"is_deleted":1})
+            db.commit()
+            return employment_id
+        except SQLAlchemyError:
+            db.rollback()
+            raise
 
     def restore_employment(db:Session,employment_id:int):
-        emp = db.query(Employment).filter(Employment.employment_id == employment_id).first()
-        if not emp:
-            return None
-        emp.is_deleted = 0
-        db.commit()
-        db.refresh(emp)
-        return emp
+        try:
+            emp = db.query(Employment).filter(Employment.employment_id == employment_id).first()
+            if not emp:
+                return None
+            emp.is_deleted = 0
+            db.commit()
+            db.refresh(emp)
+            return emp
+        except SQLAlchemyError:
+            db.rollback()
+            raise
 
 
 

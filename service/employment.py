@@ -1,8 +1,9 @@
 #业务逻辑处理层：处理业务，调用dao层
 # 全部使用 @staticmethod 静态方法
 from fastapi import HTTPException
-from dao.employee1 import *
-from schemas.employee1 import EmploymentResponse, EmploymentCreate, EmploymentUpdate
+from sqlalchemy.orm import Session
+from dao.employment import EmploymentDao
+from schemas.employment import EmploymentResponse, EmploymentCreate, EmploymentUpdate
 
 
 class EmploymentService:
@@ -34,8 +35,7 @@ class EmploymentService:
 
         return {
             "salary_top5": [EmploymentResponse.model_validate(i).model_dump() for i in top5],
-            #数据库查出来的 ORM 对象通过pydantic模型校验，转换成字典格式
-            "class_average_salary": class_result  # 用转换后的结果
+            "class_average_salary": class_result
         }
 
     # 通过学号查询就业记录
@@ -43,7 +43,7 @@ class EmploymentService:
     def get_student_no_service(db:Session,student_no:str):
         emp = EmploymentDao.get_student_no_by(db,student_no)
         if not emp:
-            raise HTTPException(404, "学生不存在")
+            raise HTTPException(status_code=404, detail="就业信息不存在")
         return emp
 
     # 通过就业id查询单条就业记录
@@ -54,31 +54,26 @@ class EmploymentService:
     #新增就业数据，通过service处理业务
     @staticmethod
     def create_employment_service(db:Session,data:EmploymentCreate):
-        #通过学号来判断是否重复，然后通过前端传入的完整请求体新增就业数据！
         exist = EmploymentDao.get_student_no_by(db,data.student_no)
         if exist:
-            raise HTTPException(409, "就业信息已存在")
+            raise HTTPException(status_code=409, detail="就业信息已存在")
         return EmploymentDao.create_employment(db,data)
 
     #修改前端传过来的就业数据,在service层做简单的业务处理
     @staticmethod
     def update_employment_service(db:Session,employment_id:int,data:EmploymentUpdate):
-        #直接通过就业主键id进行查询并修改对应就业信息
         emp = EmploymentDao.get_employment_id_by(db,employment_id)
         if not emp:
-            raise HTTPException(404, "学生不存在")
+            raise HTTPException(status_code=404, detail="就业信息不存在")
         EmploymentDao.update_employment(db,employment_id,data)
         return EmploymentDao.get_employment_id_by(db,employment_id)
 
     #逻辑删除就业记录
     @staticmethod
     def delete_employment_service(db:Session,employment_id:int):
-        # 1. 先查询要删除的就业记录是否存在
         emp = EmploymentDao.get_employment_id_by(db,employment_id)
-        #如果不存在就报错
         if not emp:
-            raise HTTPException(404, "学员不存在")
-            # 3. 存在 → 调用DAO执行逻辑删除（修改标记）
+            raise HTTPException(status_code=404, detail="就业信息不存在")
         EmploymentDao.delete_employment(db, employment_id)
         return {"code": 200, "message": "删除成功", "data": employment_id}
 

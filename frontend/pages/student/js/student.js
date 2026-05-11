@@ -237,10 +237,10 @@ async function loadGenderStats() {
             html += '<tr><td colspan="4" style="text-align:center;">暂无数据</td></tr>';
         } else {
             data.forEach(s => {
-                const classId = s.class_id || s.班级 || s['班级'] || '-';
-                const totalCount = s.total_count || s.班级总人数 || s['班级总人数'] || 0;
-                const maleCount = s.male_count || s.男生人数 || s['男生人数'] || 0;
-                const femaleCount = s.female_count || s.女生人数 || s['女生人数'] || 0;
+                const classId = s.class_id || '-';
+                const totalCount = s.total_count || 0;
+                const maleCount = s.male_count || 0;
+                const femaleCount = s.female_count || 0;
                 html += `<tr><td>${classId}</td><td>${totalCount}</td><td>${maleCount}</td><td>${femaleCount}</td></tr>`;
             });
         }

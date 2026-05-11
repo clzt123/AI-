@@ -7,19 +7,19 @@ from schemas.class_info_schemas import ClassResponse, ClassUpdate
 
 
 #1查询所有班级信息:
-def get_all_classinfo(db:Session):
+def get_all_classes(db:Session):
     all_cls = db.query(ClassInfo).filter(ClassInfo.is_deleted == 0).all()
     return all_cls
 
 #2查询单个班级学生信息：
-def get_one_classinfo(db: Session,class_id: int):
+def get_one_class(db: Session,class_id: int):
     one_cls = db.query(ClassInfo).filter(ClassInfo.class_id == class_id, ClassInfo.is_deleted == 0).first()
     return one_cls
 
 #3添加班级：
 def post_add_class(cls_data:ClassUpdate,db:Session):
     try:
-        new_class = ClassInfo(**cls_data.dict())
+        new_class = ClassInfo(**cls_data.model_dump())
         db.add(new_class)
         db.commit()
         db.refresh(new_class)
@@ -32,7 +32,7 @@ def post_add_class(cls_data:ClassUpdate,db:Session):
 def put_update_classinfo(class_id: int, update_data, db: Session):
     try:
         class_obj = db.query(ClassInfo).filter(ClassInfo.class_id == class_id, ClassInfo.is_deleted == 0).first()
-        for k, v in update_data.dict(exclude_unset=True).items():
+        for k, v in update_data.model_dump(exclude_unset=True).items():
             setattr(class_obj, k, v)
         db.commit()
         db.refresh(class_obj)
@@ -80,7 +80,9 @@ def check_class_name_exists(db: Session, class_name: str):
     ).first() is not None
 
 #统计分析模块：
-# 按年月统计每个月开班的班级数量:
+# 按年月统计每个月开班的班级数量
+# 业务需求：统计每月开班情况，用于分析开班趋势
+# 关键逻辑：使用 DATE_FORMAT 按年月分组，group_concat 拼接班级名称列表
 def count_class_month(db: Session, month: str = None):
     # 1. 基础查询：按月分组，统计数量 + 班级名称列表
     query = db.query(

@@ -1,5 +1,15 @@
-from schemas.teacher import *
-from service.teacher import *
+from schemas.teacher import TeacherCreate, TeacherUpdate, TeacherListResponse
+from service.teacher import (
+    get_all_teachers_list,
+    create_teacher,
+    get_teachers_list,
+    get_teacher,
+    update_teacher_service,
+    delete_teacher_service,
+    get_deleted_teachers_list,
+    restore_teacher_service,
+    get_teacher_stats_service
+)
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from typing import Optional
@@ -8,7 +18,7 @@ from database import get_db
 
 router = APIRouter(prefix="/teacher", tags=["老师管理模块"])
 
-@router.get('/all')
+@router.get('/all', response_model=dict)
 def get_all_teachers(db: Session = Depends(get_db)):
     teachers = get_all_teachers_list(db)
     return {"code": 200, "message": "查询成功", "data": teachers}

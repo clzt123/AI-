@@ -9,19 +9,18 @@ async function loadScores() {
     const id = document.getElementById('search_id').value;
     const studentNo = document.getElementById('search_student_no').value;
     const examOrder = document.getElementById('search_exam_order').value;
-    let url = `/scores?page=${currentPage}&size=${pageSize}`;
+    let url = `/scores?page=${currentPage}&page_size=${pageSize}`;
     if (id) url += `&id=${id}`;
     if (studentNo) url += `&student_no=${studentNo}`;
     if (examOrder) url += `&exam_order=${examOrder}`;
     try {
         const res = await apiRequest(url);
-        // api.js已自动解包，res是数组，带有total/page/size属性
         const items = Array.isArray(res) ? res : (res.data || []);
         const total = res.total || 0;
         const page = res.page || currentPage;
-        const size = res.size || pageSize;
+        const page_size = res.page_size || pageSize;
         renderScores(items);
-        renderPagination(page, size, total, 'changePage');
+        renderPagination(page, page_size, total, 'changePage');
     } catch (e) {
         console.error(e);
     }
@@ -67,7 +66,7 @@ function openAddModal() {
 
 async function editScore(id) {
     try {
-        const res = await apiRequest(`/scores?id=${id}&page=1&size=1`);
+        const res = await apiRequest(`/scores?id=${id}&page=1&page_size=1`);
         const items = Array.isArray(res) ? res : (res.data || []);
         if (items && items.length > 0) {
             const s = items[0];

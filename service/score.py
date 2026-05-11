@@ -1,6 +1,17 @@
 from fastapi import HTTPException
+from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
-from dao.score import *
+from dao.score import (
+    add_score_dao,
+    check_score_exists,
+    get_comprehensive_scores,
+    update_score_dao,
+    delete_score_dao,
+    restore_scores_dao,
+    get_all_above_80_dao,
+    get_multiple_fail_dao,
+    get_class_avg_dao
+)
 from schemas.score import ScoreCreate, ScoreUpdate
 
 def add_score_service(db, score: ScoreCreate):
@@ -23,10 +34,10 @@ def format_score_list(score_list):
         for s in score_list
     ]
 
-def get_scores_service(db, id, student_no, exam_order, page, size):
+def get_scores_service(db, id, student_no, exam_order, page, page_size):
     page = max(1, page)
-    size = max(1, min(size, 50))
-    data_list, total = get_comprehensive_scores(db, id, student_no, exam_order, page, size)
+    page_size = max(1, min(page_size, 50))
+    data_list, total = get_comprehensive_scores(db, id, student_no, exam_order, page, page_size)
     result_data = format_score_list(data_list)
     return {
         "code": 200,
@@ -34,7 +45,7 @@ def get_scores_service(db, id, student_no, exam_order, page, size):
         "data": result_data,
         "total": total,
         "page": page,
-        "size": size
+        "page_size": page_size
     }
 
 def update_score_service(db, id: int, data: ScoreUpdate):
@@ -50,32 +61,19 @@ def delete_score_service(db, id: int):
     return True
 
 def restore_score_service(db: Session, id: int = None, student_no: str = None, exam_order: int = None):
-    score_list = get_deleted_scores_dao(db, id=id, student_no=student_no, exam_order=exam_order)
+    score_list = restore_scores_dao(db, id=id, student_no=student_no, exam_order=exam_order)
     if not score_list:
         raise HTTPException(status_code=404, detail="未找到任何已删除的成绩数据")
-    try:
-        for score in score_list:
-            score.is_deleted = 0
-        db.commit()
-    except SQLAlchemyError:
-        db.rollback()
-        raise HTTPException(status_code=500, detail="恢复操作失败，数据库错误")
     return len(score_list)
 
 def get_all_above_80_service(db):
     data = get_all_above_80_dao(db)
-    if not data:
-        raise HTTPException(status_code=404, detail="暂无80分以上学生")
     return data
 
 def get_multiple_fail_service(db):
     data = get_multiple_fail_dao(db)
-    if not data:
-        raise HTTPException(status_code=404, detail="暂无不及格超过2次的学生")
     return data
 
 def get_class_avg_service(db):
     data = get_class_avg_dao(db)
-    if not data:
-        raise HTTPException(status_code=404, detail="暂无考试成绩数据")
     return data

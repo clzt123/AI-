@@ -17,10 +17,10 @@ def get_scores(
     student_no: str | None = Query(None, description="学生学号", min_length=1, max_length=20),
     exam_order: int | None = Query(None, description="考试序号", ge=1),
     page: int = Query(1, description="页码", ge=1),
-    size: int = Query(10, description="每页条数", ge=1, le=50),
+    page_size: int = Query(10, description="每页条数", ge=1, le=50),
     db: Session = Depends(get_db)
 ):
-    result = get_scores_service(db, id, student_no, exam_order, page, size)
+    result = get_scores_service(db, id, student_no, exam_order, page, page_size)
     return result
 
 @score_router.put("/scores/{id}", summary="修改成绩")

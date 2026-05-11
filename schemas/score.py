@@ -76,7 +76,7 @@ class Score_Page_Response(BaseModel):
     data: list[ScoreResponseItem] # 成绩列表
     total: int                    # 总条数
     page: int                     # 当前页码
-    size: int                     # 每页条数
+    page_size: int                # 每页条数
 
     class Config:
         from_attributes = True

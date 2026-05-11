@@ -5,7 +5,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi import HTTPException
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from database import engine,Base
-from api import *
+from api import class_router, employment_router, score_router, student_info_router, teacher_router
 import os
 from dotenv import load_dotenv
 
@@ -50,10 +50,10 @@ frontend_dir = os.path.join(os.path.dirname(__file__), "frontend")
 app.mount("/static", StaticFiles(directory=frontend_dir), name="static")
 
 # 导入子路由（添加/api前缀）
-app.include_router(student_info.router, prefix="/api", tags=["学生管理"])
+app.include_router(student_info_router, prefix="/api", tags=["学生管理"])
 app.include_router(score_router, prefix="/api", tags=["学生成绩"])
-app.include_router(employee1.router, prefix="/api", tags=["就业模块"])
-app.include_router(teacher.router, prefix="/api", tags=["老师管理模块"])
+app.include_router(employment_router, prefix="/api", tags=["就业模块"])
+app.include_router(teacher_router, prefix="/api", tags=["老师管理模块"])
 app.include_router(class_router, prefix="/api", tags=["班级管理"])
 
 # 前端页面路由

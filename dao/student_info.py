@@ -109,10 +109,10 @@ def check_student_age(db: Session):
 #统计每个班级的人数以及男生女生人数
 def check_student_gender(db: Session):
     stu = (db.query(
-        Student.class_id.label("班级"),
-        func.count(Student.id).label('班级总人数'),
-        func.sum(func.if_(Student.gender == "男", 1, 0)).label("男生人数"),
-        func.sum(func.if_(Student.gender == "女", 1, 0)).label("女生人数")
+        Student.class_id.label("class_id"),
+        func.count(Student.id).label('total_count'),
+        func.sum(func.if_(Student.gender == "男", 1, 0)).label("male_count"),
+        func.sum(func.if_(Student.gender == "女", 1, 0)).label("female_count")
     )
     .filter(Student.is_deleted == 0)
     .group_by(Student.class_id)
@@ -120,10 +120,10 @@ def check_student_gender(db: Session):
     result = []
     for s in stu:
         result.append({
-            "班级": s.班级,
-            "班级总人数": s.班级总人数,
-            "男生人数": s.男生人数 if s.男生人数 is not None else 0,
-            "女生人数": s.女生人数 if s.女生人数 is not None else 0
+            "class_id": s.class_id,
+            "total_count": s.total_count,
+            "male_count": s.male_count if s.male_count is not None else 0,
+            "female_count": s.female_count if s.female_count is not None else 0
         })
     return result
 

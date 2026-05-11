@@ -13,7 +13,13 @@ DB_POOL_SIZE = int(os.getenv("DB_POOL_SIZE", "5"))
 
 SQL_URL = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}"
 
-engine = create_engine(SQL_URL, pool_size=DB_POOL_SIZE)
+engine = create_engine(
+    SQL_URL,
+    pool_size=DB_POOL_SIZE,
+    max_overflow=10,
+    pool_recycle=3600,
+    pool_pre_ping=True
+)
 
 Base = declarative_base()
 

@@ -2,7 +2,7 @@
 from sqlalchemy import Column, Integer, String, Float, UniqueConstraint
 from database import Base
 
-class Score_DB(Base):
+class Score(Base):
     __tablename__ = 'score'  # 数据库表名
 
     id = Column(Integer, nullable=False, primary_key=True, autoincrement=True, comment='成绩id')
