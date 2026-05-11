@@ -53,10 +53,8 @@ app.mount("/static", StaticFiles(directory=frontend_dir), name="static")
 app.include_router(student_info.router, prefix="/api", tags=["学生管理"])
 app.include_router(score_router, prefix="/api", tags=["学生成绩"])
 app.include_router(employee1.router, prefix="/api", tags=["就业模块"])
-app.include_router(stu_employment.router, prefix="/api", tags=["学生就业管理"])
 app.include_router(teacher.router, prefix="/api", tags=["老师管理模块"])
 app.include_router(class_router, prefix="/api", tags=["班级管理"])
-app.include_router(student_api.router, prefix="/api", tags=["学生管理2"])
 
 # 前端页面路由
 @app.get("/")
