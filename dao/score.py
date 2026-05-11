@@ -2,18 +2,21 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 
-from database import *
 from models.score import Score
 from models.student_info import Student
 from schemas.score import ScoreCreate, ScoreUpdate
 from collections import defaultdict
 
 def add_score_dao(db: Session, score: ScoreCreate):
-    item = Score(**score.model_dump(), is_deleted=0)
-    db.add(item)
-    db.commit()
-    db.refresh(item)
-    return item
+    try:
+        item = Score(**score.model_dump(), is_deleted=0)
+        db.add(item)
+        db.commit()
+        db.refresh(item)
+        return item
+    except SQLAlchemyError:
+        db.rollback()
+        raise
 
 def check_score_exists(db: Session, student_no: str, exam_order: int):
     return db.query(Score).filter(
@@ -22,32 +25,40 @@ def check_score_exists(db: Session, student_no: str, exam_order: int):
         Score.is_deleted == 0
     ).first()
 
-def get_comprehensive_scores(db: Session, id=None, student_no=None, exam_order=None, page=1, size=10):
+def get_comprehensive_scores(db: Session, id=None, student_no=None, exam_order=None, page=1, page_size=10):
     q = db.query(Score).filter(Score.is_deleted == 0)
-    if id:
-        q = q.filter(Score.id.like(f"%{id}%"))
+    if id is not None:
+        q = q.filter(Score.id == id)
     if student_no:
         q = q.filter(Score.student_no.like(f"%{student_no}%"))
-    if exam_order:
-        q = q.filter(Score.exam_order.like(f"%{exam_order}%"))
+    if exam_order is not None:
+        q = q.filter(Score.exam_order == exam_order)
     total = q.count()
-    data_list = q.offset((page - 1) * size).limit(size).all()
+    data_list = q.offset((page - 1) * page_size).limit(page_size).all()
     return data_list, total
 
 def update_score_dao(db: Session, id: int, data: ScoreUpdate):
-    item = db.query(Score).filter_by(id=id, is_deleted=0).first()
-    if item:
-        item.score = data.score
-        db.commit()
-        db.refresh(item)
-    return item
+    try:
+        item = db.query(Score).filter_by(id=id, is_deleted=0).first()
+        if item:
+            item.score = data.score
+            db.commit()
+            db.refresh(item)
+        return item
+    except SQLAlchemyError:
+        db.rollback()
+        raise
 
 def delete_score_dao(db: Session, id: int):
-    item = db.query(Score).filter_by(id=id, is_deleted=0).first()
-    if item:
-        item.is_deleted = 1
-        db.commit()
-    return item
+    try:
+        item = db.query(Score).filter_by(id=id, is_deleted=0).first()
+        if item:
+            item.is_deleted = 1
+            db.commit()
+        return item
+    except SQLAlchemyError:
+        db.rollback()
+        raise
 
 def get_deleted_scores_dao(db: Session, id: int = None, student_no: str = None, exam_order: int = None):
     query = db.query(Score).filter(Score.is_deleted == 1)

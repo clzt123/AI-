@@ -7,6 +7,7 @@ from schemas.employment import EmploymentCreate, EmploymentUpdate
 
 class EmploymentDao:
 
+    @staticmethod
     def get_all(
             db:Session,
             skip: int = 0,
@@ -24,18 +25,21 @@ class EmploymentDao:
             emp = emp.filter(Employment.class_id == class_id)
         return emp.offset(skip).limit(limit).all()
 
+    @staticmethod
     def get_by_salary_range(db: Session, salary_min: int, salary_max: int):
         return db.query(Employment).filter(
             Employment.salary.between(salary_min, salary_max),
             Employment.is_deleted == 0
         ).all()
 
+    @staticmethod
     def get_salary_top5(db:Session):
         return db.query(Employment).filter(
             Employment.is_deleted == 0,
             Employment.salary.isnot(None)
         ).order_by(Employment.salary.desc()).limit(5).all()
 
+    @staticmethod
     def get_class_avg(db:Session):
         return db.query(Employment.class_id,
                         func.avg(Employment.salary).label("avg_salary")
@@ -44,14 +48,17 @@ class EmploymentDao:
             Employment.salary.isnot(None)
         ).group_by(Employment.class_id).all()
 
+    @staticmethod
     def get_student_no_by(db:Session,student_no:str):
         return db.query(Employment).filter(Employment.student_no == student_no,
                                            Employment.is_deleted == 0).first()
 
+    @staticmethod
     def get_employment_id_by(db:Session,employment_id:int):
         return db.query(Employment).filter(Employment.employment_id == employment_id,
                                            Employment.is_deleted == 0).first()
 
+    @staticmethod
     def create_employment(db:Session,data:EmploymentCreate):
         try:
             emp = Employment(**data.model_dump())
@@ -63,6 +70,7 @@ class EmploymentDao:
             db.rollback()
             raise
 
+    @staticmethod
     def update_employment(db:Session,employment_id:int,data:EmploymentUpdate):
         try:
             db.query(Employment).filter(Employment.employment_id == employment_id,
@@ -72,6 +80,7 @@ class EmploymentDao:
             db.rollback()
             raise
 
+    @staticmethod
     def delete_employment(db:Session,employment_id:int):
         try:
             db.query(Employment).filter(
@@ -83,6 +92,7 @@ class EmploymentDao:
             db.rollback()
             raise
 
+    @staticmethod
     def restore_employment(db:Session,employment_id:int):
         try:
             emp = db.query(Employment).filter(Employment.employment_id == employment_id).first()

@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from sqlalchemy.exc import SQLAlchemyError
 from models.teacher import Teacher
 from schemas.teacher import TeacherCreate, TeacherUpdate
@@ -96,8 +97,6 @@ def restore_teacher(db: Session, teacher_id: int):
     except SQLAlchemyError:
         db.rollback()
         raise
-
-from sqlalchemy import func
 
 # 统计男女老师人数
 def get_teacher_stats(db: Session):

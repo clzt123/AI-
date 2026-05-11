@@ -7,16 +7,17 @@ from database import get_db
 
 router = APIRouter(prefix="/employment",tags=["就业模块"])
 
-@router.get("/")
+@router.get("/all")
 def get_all_api(
-        skip:int=Query(0,description="分页偏移量"),
-        limit:int=Query(10,description="每页条数"),
+        page:int=Query(1,description="页码",ge=1),
+        page_size:int=Query(10,description="每页条数",ge=1,le=50),
         student_name:str=Query(None,description="学生姓名"),
         company_name:str=Query(None,description="就业公司"),
         class_id:int=Query(None,description="班级ID"),
         db:Session = Depends(get_db)
 ):
-    emp_list = EmploymentService.get_all_service(db, skip, limit, student_name,company_name, class_id)
+    skip = (page - 1) * page_size
+    emp_list = EmploymentService.get_all_service(db, skip, page_size, student_name, company_name, class_id)
     return {"code": 200,
             "message": "查询成功",
             "data": emp_list}

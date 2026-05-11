@@ -59,12 +59,12 @@ def get_student_by_id_route(id: int, db: Session=Depends(get_db)):
 def update_student(id:int, s:StudentUpdate, db:Session=Depends(get_db)):
     return update_student_service(db, id, s)
 
-@router.delete("/delete/{id}")
+@router.delete("/delete/{id}", response_model=dict)
 def delete_student(id:int, db:Session=Depends(get_db)):
     delete_student_service(db, id)
     return {"code": 200, "message": "删除成功", "data": None}
 
-@router.put("/restore/{id}")
+@router.put("/restore/{id}", response_model=dict)
 def restore_student_route(id: int, db:Session=Depends(get_db)):
     restore_student_service(db, id)
     return {"code": 200, "message": "恢复成功", "data": None}

@@ -1,7 +1,14 @@
 from fastapi import APIRouter, Depends, Query, Path
 from sqlalchemy.orm import Session
-from service.score import *
-from schemas.score import *
+from service.score import (
+    add_score_service, get_scores_service, update_score_service,
+    delete_score_service, restore_score_service,
+    get_all_above_80_service, get_multiple_fail_service, get_class_avg_service
+)
+from schemas.score import (
+    ScoreCreate, ScoreUpdate, ScoreResponse, Score_Page_Response,
+    StudentFailResponse, ClassAvgScoreResponse
+)
 from database import get_db
 
 score_router = APIRouter()

@@ -1,13 +1,16 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
-from dao.teacher import *
+from dao.teacher import (
+    create_teacher, update_teacher, delete_teacher,
+    get_all_teachers, get_teacher_by_id, get_teacher_by_conditions,
+    get_deleted_teachers, restore_teacher, get_teacher_stats,
+    check_teacher_exists, check_teacher_deleted, check_teacher_exists_any
+)
 from schemas.teacher import TeacherUpdate
 
 def get_all_teachers_list(db: Session):
     teachers = get_all_teachers(db)
-    if not teachers:
-        raise HTTPException(status_code=404, detail="数据库中暂无老师数据")
-    return teachers
+    return teachers if teachers else []
 
 def get_teacher(db: Session, teacher_id: int):
     tea = get_teacher_by_id(db, teacher_id)
@@ -17,8 +20,6 @@ def get_teacher(db: Session, teacher_id: int):
 
 def get_teachers_list(db: Session, teacher_name=None, gender=None, page=1, page_size=10):
     total, data = get_teacher_by_conditions(db, teacher_name, gender, page, page_size)
-    if total == 0:
-        raise HTTPException(status_code=404, detail="未找到符合条件的老师")
     return total, data
 
 def get_deleted_teachers_list(db: Session, page=1, page_size=10):
@@ -30,12 +31,12 @@ def get_deleted_teachers_list(db: Session, page=1, page_size=10):
 def update_teacher_service(db: Session, teacher_id: int, data: TeacherUpdate):
     tea = update_teacher(db, teacher_id, data)
     if not tea:
-        raise HTTPException(status_code=404, detail="老师不存在，无法更新")
+        raise HTTPException(status_code=404, detail="老师不存在")
     return tea
 
 def delete_teacher_service(db: Session, teacher_id: int):
     if not check_teacher_exists_any(db, teacher_id):
-        raise HTTPException(status_code=404, detail="老师ID不存在")
+        raise HTTPException(status_code=404, detail="老师不存在")
     if check_teacher_deleted(db, teacher_id):
         raise HTTPException(status_code=400, detail="老师已被删除，无需重复删除")
     success = delete_teacher(db, teacher_id)

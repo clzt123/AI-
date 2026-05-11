@@ -1,4 +1,4 @@
-let currentPage = 0;
+let currentPage = 1;
 const pageSize = 10;
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -9,7 +9,7 @@ async function loadEmployments() {
     const studentName = document.getElementById('search_student_name').value;
     const companyName = document.getElementById('search_company_name').value;
     const classId = document.getElementById('search_class_id').value;
-    let url = `/employment/?skip=${currentPage}&limit=${pageSize}`;
+    let url = `/employment/all?page=${currentPage}&page_size=${pageSize}`;
     if (studentName) url += `&student_name=${studentName}`;
     if (companyName) url += `&company_name=${companyName}`;
     if (classId) url += `&class_id=${classId}`;
@@ -17,7 +17,6 @@ async function loadEmployments() {
         const res = await apiRequest(url);
         const data = Array.isArray(res) ? res : (res.data || []);
         renderEmployments(data);
-        renderPagination((currentPage / pageSize) + 1, pageSize, data.length, 'changePage');
     } catch (e) {
         console.error(e);
     }
@@ -49,12 +48,12 @@ function renderEmployments(data) {
 
 function changePage(page) {
     if (page < 1) return;
-    currentPage = (page - 1) * pageSize;
+    currentPage = page;
     loadEmployments();
 }
 
 function searchEmployments() {
-    currentPage = 0;
+    currentPage = 1;
     loadEmployments();
 }
 
@@ -67,7 +66,7 @@ function openAddModal() {
 
 async function editEmployment(id) {
     try {
-        const res = await apiRequest(`/employment/?skip=0&limit=100`);
+        const res = await apiRequest(`/employment/all?page=1&page_size=100`);
         const data = Array.isArray(res) ? res : (res.data || []);
         const emp = data.find(e => e.employment_id === id);
         if (emp) {

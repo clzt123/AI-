@@ -74,25 +74,6 @@ def restore_student(db: Session, id: int):
         raise
 
 #查询已删除学生的数据
-# 删除按 id
-def delete_student(db: Session, id: int):
-    stu = db.query(Student).filter(Student.id == id,Student.is_deleted == 0).first()
-    if not stu:
-        return False
-    stu.is_deleted = 1
-    db.commit()
-    return True
-
-#恢复学生数据
-def restore_student(db: Session, id: int):
-    stu = db.query(Student).filter(Student.id == id,Student.is_deleted == 1).first()
-    if not stu:
-        return False
-    stu.is_deleted = 0
-    db.commit()
-    return True
-
-#查询已删除学生的数据
 def get_deleted_student(db: Session, student_name=None,page=1, page_size=10):
     q = db.query(Student).filter(Student.is_deleted == 1)
     if student_name:

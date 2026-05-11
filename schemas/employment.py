@@ -1,6 +1,6 @@
 import re
 
-from pydantic import BaseModel, Field,field_validator
+from pydantic import BaseModel, Field
 from typing import Optional
 from datetime import date
 
@@ -13,12 +13,6 @@ class EmploymentCreate(BaseModel):
     offer_send_time: Optional[date] = Field(None,description="offer下发时间")
     company_name: Optional[str] = Field(None,description="公司名称")
     salary: Optional[int] = Field(None,description="薪资")
-
-    @field_validator('student_no')
-    def check_student_no(cls, value):
-        if not re.match(r"^XS\d{7}$", value):
-            raise ValueError("学号必须是 XS + 7 位数字，如 XS2400001")
-        return value
 
 
 class EmploymentUpdate(BaseModel):
