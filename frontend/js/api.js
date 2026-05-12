@@ -26,12 +26,16 @@ function parseErrorMessage(errorData) {
 }
 
 async function apiRequest(url, method = 'GET', data = null) {
+    const token = localStorage.getItem('token');
     const options = {
         method: method,
         headers: {
             'Content-Type': 'application/json'
         }
     };
+    if (token) {
+        options.headers['Authorization'] = `Bearer ${token}`;
+    }
     if (data && (method === 'POST' || method === 'PUT')) {
         options.body = JSON.stringify(data);
     }

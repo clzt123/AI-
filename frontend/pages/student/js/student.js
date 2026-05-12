@@ -7,10 +7,10 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 async function loadStudents() {
-    const name = document.getElementById('search_name').value;
-    const classId = document.getElementById('search_class_id').value;
+    const name = document.getElementById('search_name').value.trim();
+    const classId = document.getElementById('search_class_id').value.trim();
     let url = `/students/check?page=${currentPage}&page_size=${pageSize}`;
-    if (name) url += `&student_name=${name}`;
+    if (name) url += `&student_name=${encodeURIComponent(name)}`;
     if (classId) url += `&class_id=${classId}`;
     try {
         const res = await apiRequest(url);
