@@ -1,7 +1,8 @@
 from sqlalchemy import Column, Integer, String, Date
 from database import Base
-#学生信息表
+
 class Student(Base):
+    """学生信息表模型，存储学生基本信息"""
     __tablename__ = "student_info"
 
     id = Column(Integer, primary_key=True, autoincrement=True, comment="学生编号")

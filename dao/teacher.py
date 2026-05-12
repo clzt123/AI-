@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import func
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.exc import IntegrityError
 from typing import List, Optional, Tuple
 from models.teacher import Teacher
 from schemas.teacher import TeacherCreate, TeacherUpdate
@@ -14,7 +14,7 @@ def create_teacher(db: Session, t: TeacherCreate) -> Teacher:
         db.commit()
         db.refresh(db_tea)
         return db_tea
-    except SQLAlchemyError:
+    except IntegrityError:
         db.rollback()
         raise
 
@@ -33,7 +33,7 @@ def update_teacher(db: Session, teacher_id: int, data: TeacherUpdate) -> Optiona
         db.commit()
         db.refresh(tea)
         return tea
-    except SQLAlchemyError:
+    except IntegrityError:
         db.rollback()
         raise
 
@@ -49,7 +49,7 @@ def delete_teacher(db: Session, teacher_id: int) -> bool:
         tea.is_deleted = 1
         db.commit()
         return True
-    except SQLAlchemyError:
+    except IntegrityError:
         db.rollback()
         raise
 
@@ -103,7 +103,7 @@ def restore_teacher(db: Session, teacher_id: int) -> Optional[Teacher]:
         db.commit()
         db.refresh(tea)
         return tea
-    except SQLAlchemyError:
+    except IntegrityError:
         db.rollback()
         raise
 

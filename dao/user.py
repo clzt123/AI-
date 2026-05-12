@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.exc import IntegrityError
 from typing import Optional
 from models.user import User
 from schemas.user import UserRegister
@@ -27,7 +27,7 @@ def create_user(db: Session, data: UserRegister, password_hash: str) -> User:
         db.commit()
         db.refresh(user)
         return user
-    except SQLAlchemyError:
+    except IntegrityError:
         db.rollback()
         raise
 

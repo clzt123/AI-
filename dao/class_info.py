@@ -1,6 +1,6 @@
 from sqlalchemy import func
 from sqlalchemy.orm import Session
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.exc import IntegrityError
 from typing import List, Optional, Dict, Any
 from models.class_info import ClassInfo
 from schemas.class_info import ClassResponse, ClassUpdate
@@ -24,7 +24,7 @@ def create_class(db: Session, cls_data: ClassUpdate) -> ClassInfo:
         db.commit()
         db.refresh(new_class)
         return new_class
-    except SQLAlchemyError:
+    except IntegrityError:
         db.rollback()
         raise
 
@@ -37,7 +37,7 @@ def update_class(db: Session, class_id: int, update_data: ClassUpdate) -> ClassI
         db.commit()
         db.refresh(class_obj)
         return class_obj
-    except SQLAlchemyError:
+    except IntegrityError:
         db.rollback()
         raise
 
@@ -50,7 +50,7 @@ def delete_class(db: Session, class_id: int) -> Optional[ClassInfo]:
         class_obj.is_deleted = 1
         db.commit()
         return class_obj
-    except SQLAlchemyError:
+    except IntegrityError:
         db.rollback()
         raise
 
@@ -63,7 +63,7 @@ def restore_class(db: Session, class_id: int) -> Optional[ClassInfo]:
         class_obj.is_deleted = 0
         db.commit()
         return class_obj
-    except SQLAlchemyError:
+    except IntegrityError:
         db.rollback()
         raise
 

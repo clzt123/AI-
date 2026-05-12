@@ -3,10 +3,13 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 from functools import wraps
 from jose import jwt, JWTError
+from config import SECRET_KEY, ALGORITHM
 
-SECRET_KEY = "your-secret-key-change-in-production"
-ALGORITHM = "HS256"
-
+# 角色权限配置字典
+# 角色说明：
+# - admin: 管理员，拥有所有模块的完整权限
+# - homeroom: 班主任，可管理学生、成绩、就业信息
+# - teacher: 任课老师，可查看学生/成绩/班级信息，可录入成绩
 ROLE_PERMISSIONS = {
     "student_info": {
         "create": ["admin", "homeroom"],

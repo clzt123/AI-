@@ -7,9 +7,9 @@ API 路由模块
 - class_info: 班级管理
 - employment: 就业管理
 """
-from .class_info import class_router
+from .class_info import router as class_router
 from .employment import router as employment_router
-from .score import score_router
+from .score import router as score_router
 from .student_info import router as student_info_router
 from .teacher import router as teacher_router
-from .user import user_router
+from .user import router as user_router

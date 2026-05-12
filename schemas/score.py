@@ -70,7 +70,7 @@ class ScoreResponse(BaseModel):
         from_attributes = True
 
 # 成绩分页查询响应
-class Score_Page_Response(BaseModel):
+class ScorePageResponse(BaseModel):
     code: int                     # 状态码
     message: str                  # 提示信息
     data: list[ScoreResponseItem] # 成绩列表

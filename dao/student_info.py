@@ -1,20 +1,31 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import func, case
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.exc import IntegrityError
 from typing import List, Optional, Tuple
 from models.student_info import Student
 from schemas.student_info import StudentCreate, StudentUpdate
 
-# 创建：数据库自动生成id
 def create_student(db: Session, s: StudentCreate) -> Student:
-    """创建新的学生信息记录"""
+    """
+    创建新的学生信息记录
+    
+    参数:
+        db: 数据库会话
+        s: 学生创建数据
+    
+    返回:
+        创建成功的学生对象
+    
+    异常:
+        IntegrityError: 当违反数据库唯一约束时抛出
+    """
     try:
         db_stu = Student(** s.model_dump())
         db.add(db_stu)
         db.commit()
         db.refresh(db_stu)
         return db_stu
-    except SQLAlchemyError:
+    except IntegrityError:
         db.rollback()
         raise
 
@@ -48,7 +59,7 @@ def update_student(db: Session, id: int, data: StudentUpdate) -> Optional[Studen
         db.commit()
         db.refresh(stu) 
         return stu
-    except SQLAlchemyError:
+    except IntegrityError:
         db.rollback()
         raise
 
@@ -62,7 +73,7 @@ def delete_student(db: Session, id: int) -> bool:
         stu.is_deleted = 1
         db.commit()
         return True
-    except SQLAlchemyError:
+    except IntegrityError:
         db.rollback()
         raise
 
@@ -76,7 +87,7 @@ def restore_student(db: Session, id: int) -> bool:
         stu.is_deleted = 0
         db.commit()
         return True
-    except SQLAlchemyError:
+    except IntegrityError:
         db.rollback()
         raise
 

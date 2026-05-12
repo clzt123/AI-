@@ -1,6 +1,6 @@
 from sqlalchemy import func
 from sqlalchemy.orm import Session
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.exc import IntegrityError
 from typing import List, Optional, Dict, Any, Tuple
 from models.score import Score
 from models.student_info import Student
@@ -15,7 +15,7 @@ def add_score_dao(db: Session, score: ScoreCreate) -> Score:
         db.commit()
         db.refresh(item)
         return item
-    except SQLAlchemyError:
+    except IntegrityError:
         db.rollback()
         raise
 
@@ -49,7 +49,7 @@ def update_score_dao(db: Session, id: int, data: ScoreUpdate) -> Optional[Score]
             db.commit()
             db.refresh(item)
         return item
-    except SQLAlchemyError:
+    except IntegrityError:
         db.rollback()
         raise
 
@@ -61,7 +61,7 @@ def delete_score_dao(db: Session, id: int) -> Optional[Score]:
             item.is_deleted = 1
             db.commit()
         return item
-    except SQLAlchemyError:
+    except IntegrityError:
         db.rollback()
         raise
 
@@ -88,7 +88,7 @@ def restore_scores_dao(db: Session, id: int = None, student_no: str = None, exam
             score.is_deleted = 0
         db.commit()
         return score_list
-    except SQLAlchemyError:
+    except IntegrityError:
         db.rollback()
         raise
 

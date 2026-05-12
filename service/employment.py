@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from typing import List, Dict, Any, Optional
 from dao.employment import (
     get_all_employment,
+    count_all_employment,
     get_by_salary_range,
     get_salary_top5,
     get_class_avg,
@@ -16,11 +17,18 @@ from dao.employment import (
 from schemas.employment import EmploymentResponse, EmploymentCreate, EmploymentUpdate
 
 
-def get_all_service(db: Session, skip: int, limit: int, student_name: str, company_name: str, class_id: int) -> List[Dict[str, Any]]:
+def get_all_service(db: Session, page: int, page_size: int, student_name: str, company_name: str, class_id: int) -> Dict[str, Any]:
     """获取所有就业信息列表，支持分页和多条件筛选"""
-    emp_list = get_all_employment(db, skip, limit, student_name, company_name, class_id)
+    skip = (page - 1) * page_size
+    emp_list = get_all_employment(db, skip, page_size, student_name, company_name, class_id)
+    total = count_all_employment(db, student_name, company_name, class_id)
     serialized = [EmploymentResponse.model_validate(item).model_dump() for item in emp_list] if emp_list else []
-    return serialized
+    return {
+        "total": total,
+        "data": serialized,
+        "page": page,
+        "page_size": page_size
+    }
 
 
 def get_by_salary_range_service(db: Session, salary_min: int, salary_max: int) -> List:

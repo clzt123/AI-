@@ -7,22 +7,22 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from database import engine,Base
 from api import class_router, employment_router, score_router, student_info_router, teacher_router, user_router
 import os
-from dotenv import load_dotenv
-from jose import jwt, JWTError
+import logging
+from fastapi.middleware.cors import CORSMiddleware
 
-load_dotenv()
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
-APP_HOST = os.getenv("APP_HOST", "0.0.0.0")
-APP_PORT = int(os.getenv("APP_PORT", "8000"))
-SECRET_KEY = "your-secret-key-change-in-production"
-ALGORITHM = "HS256"
-
-#删除所有表
-# Base.metadata.drop_all(bind=engine)
-#创建表
 Base.metadata.create_all(bind=engine)
-# 创建系统
 app = FastAPI(title="学生管理系统",version="2.0")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.exception_handler(StarletteHTTPException)
 async def http_exception_handler(request, exc):
@@ -37,18 +37,18 @@ async def http_exception_handler(request, exc):
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request, exc):
-    # 所有参数校验失败统一返回权限不足，避免暴露系统内部信息
     return JSONResponse(
         status_code=403,
         content={
             "code": 403,
-            "message": "权限不足：您没有执行此操作的权限",
+            "message": "权限不足",
             "data": None
         }
     )
 
 @app.exception_handler(Exception)
 async def general_exception_handler(request, exc):
+    logger.error(f"Unhandled exception: {exc}", exc_info=True)
     return JSONResponse(
         status_code=500,
         content={
@@ -63,7 +63,7 @@ frontend_dir = os.path.join(os.path.dirname(__file__), "frontend")
 app.mount("/static", StaticFiles(directory=frontend_dir), name="static")
 
 # 导入子路由（添加/api前缀）
-app.include_router(user_router, prefix="/api/auth", tags=["用户认证"])
+app.include_router(user_router, prefix="/auth", tags=["用户认证"])
 app.include_router(student_info_router, prefix="/api", tags=["学生管理"])
 app.include_router(score_router, prefix="/api", tags=["学生成绩"])
 app.include_router(employment_router, prefix="/api", tags=["就业管理"])
@@ -101,4 +101,5 @@ async def page_class():
 
 if __name__ == '__main__':
     import uvicorn
+    from config import APP_HOST, APP_PORT
     uvicorn.run(app, host=APP_HOST, port=APP_PORT)

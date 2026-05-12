@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import func
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.exc import IntegrityError
 from typing import List, Optional
 from models.employment import Employment
 from schemas.employment import EmploymentCreate, EmploymentUpdate
@@ -23,6 +23,23 @@ def get_all_employment(
     if class_id:
         emp = emp.filter(Employment.class_id == class_id)
     return emp.offset(skip).limit(limit).all()
+
+
+def count_all_employment(
+        db: Session,
+        student_name: str = None,
+        company_name: str = None,
+        class_id: int = None
+) -> int:
+    """统计符合条件的就业信息总数"""
+    emp = db.query(Employment).filter(Employment.is_deleted == 0)
+    if student_name:
+        emp = emp.filter(Employment.student_name.like(f"%{student_name}%"))
+    if company_name:
+        emp = emp.filter(Employment.company_name.like(f"%{company_name}%"))
+    if class_id:
+        emp = emp.filter(Employment.class_id == class_id)
+    return emp.count()
 
 
 def get_by_salary_range(db: Session, salary_min: int, salary_max: int) -> List[Employment]:
@@ -71,7 +88,7 @@ def create_employment(db: Session, data: EmploymentCreate) -> Employment:
         db.commit()
         db.refresh(emp)
         return emp
-    except SQLAlchemyError:
+    except IntegrityError:
         db.rollback()
         raise
 
@@ -82,7 +99,7 @@ def update_employment(db: Session, employment_id: int, data: EmploymentUpdate) -
         db.query(Employment).filter(Employment.employment_id == employment_id,
                                     Employment.is_deleted == 0).update(data.model_dump(exclude_unset=True))
         db.commit()
-    except SQLAlchemyError:
+    except IntegrityError:
         db.rollback()
         raise
 
@@ -95,7 +112,7 @@ def delete_employment(db: Session, employment_id: int) -> int:
         ).update({"is_deleted": 1})
         db.commit()
         return employment_id
-    except SQLAlchemyError:
+    except IntegrityError:
         db.rollback()
         raise
 
@@ -110,6 +127,6 @@ def restore_employment(db: Session, employment_id: int) -> Optional[Employment]:
         db.commit()
         db.refresh(emp)
         return emp
-    except SQLAlchemyError:
+    except IntegrityError:
         db.rollback()
         raise

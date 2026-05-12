@@ -66,5 +66,4 @@ def restore_teacher_service(db: Session, teacher_id: int) -> Dict[str, Any]:
 
 def get_teacher_stats_service(db: Session) -> Dict[str, Any]:
     """获取老师性别统计数据"""
-    from dao.teacher import get_teacher_stats as dao_get_teacher_stats
-    return dao_get_teacher_stats(db)
+    return get_teacher_stats(db)

@@ -6,18 +6,19 @@ from datetime import datetime, timedelta
 from typing import Optional
 from dao.user import get_user_by_username, create_user, get_user_by_id
 from schemas.user import UserRegister, UserResponse
+from config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto", bcrypt__rounds=4)
-
-SECRET_KEY = "your-secret-key-change-in-production"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 1440
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto", bcrypt__rounds=12)
 
 VALID_ROLES = ["admin", "homeroom", "teacher"]
 
 
 def hash_password(password: str) -> str:
-    """对密码进行哈希加密"""
+    """
+    对密码进行bcrypt哈希加密
+    
+    使用bcrypt算法，rounds=12确保安全性
+    """
     return pwd_context.hash(password)
 
 

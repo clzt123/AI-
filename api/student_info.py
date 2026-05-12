@@ -19,9 +19,9 @@ from service.auth import require_permission, AuthUser
 router = APIRouter(prefix="/students", tags=["学生管理"])
 
 @router.post("/create", response_model=dict)
-def create_student_route(s: StudentCreate, db: Session = Depends(get_db), _: AuthUser = Depends(require_permission("student_info", "create"))) -> Dict[str, Any]:
+def create_student_route(student_data: StudentCreate, db: Session = Depends(get_db), _: AuthUser = Depends(require_permission("student_info", "create"))) -> Dict[str, Any]:
     """创建新的学生信息记录"""
-    result = create_student(db, s)
+    result = create_student(db, student_data)
     return {"code": 200, "message": "添加成功", "data": StudentResponse.model_validate(result).model_dump()}
 
 @router.get("/check", response_model=dict)
@@ -64,9 +64,9 @@ def get_student_by_id_route(id: int, db: Session=Depends(get_db)) -> Dict[str, A
     return {"code": 200, "message": "查询成功", "data": StudentResponse.model_validate(result).model_dump()}
 
 @router.put("/update/{id}", response_model=dict)
-def update_student(id:int, s:StudentUpdate, db:Session=Depends(get_db), _: AuthUser = Depends(require_permission("student_info", "update"))) -> Dict[str, Any]:
+def update_student(id:int, student_data:StudentUpdate, db:Session=Depends(get_db), _: AuthUser = Depends(require_permission("student_info", "update"))) -> Dict[str, Any]:
     """更新指定学生的信息"""
-    result = update_student_service(db, id, s)
+    result = update_student_service(db, id, student_data)
     return {"code": 200, "message": "修改成功", "data": StudentResponse.model_validate(result).model_dump()}
 
 @router.delete("/delete/{id}", response_model=dict)
@@ -75,19 +75,19 @@ def delete_student(id:int, db:Session=Depends(get_db), _: AuthUser = Depends(req
     delete_student_service(db, id)
     return {"code": 200, "message": "删除成功", "data": None}
 
-@router.put("/restore/{id}", response_model=dict)
+@router.post("/restore/{id}", response_model=dict)
 def restore_student_route(id: int, db:Session=Depends(get_db), _: AuthUser = Depends(require_permission("student_info", "restore"))) -> Dict[str, Any]:
     """恢复已删除的学生信息"""
     restore_student_service(db, id)
     return {"code": 200, "message": "恢复成功", "data": None}
 
-@router.get("/check_is_deleted", response_model=StudentListResponse)
+@router.get("/check_is_deleted", response_model=dict)
 def check_is_deleted(
     student_name: Optional[str] = None,
     page: int = 1,
     page_size: int = 10,
     db: Session = Depends(get_db)
-) -> StudentListResponse:
+) -> Dict[str, Any]:
     """查询已删除的学生列表，支持分页和姓名筛选"""
     total, data = get_deleted_student_list(
         db=db,

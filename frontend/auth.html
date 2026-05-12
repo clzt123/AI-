@@ -276,10 +276,10 @@
             try {
                 let url, body;
                 if (isLoginMode) {
-                    url = '/api/auth/login';
+                    url = '/auth/login';
                     body = { username, password };
                 } else {
-                    url = '/api/auth/register';
+                    url = '/auth/register';
                     body = {
                         username,
                         password,

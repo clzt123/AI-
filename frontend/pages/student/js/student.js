@@ -100,12 +100,12 @@ async function saveStudent() {
         student_name: document.getElementById('form_student_name').value,
         gender: document.getElementById('form_gender').value,
         age: parseInt(document.getElementById('form_age').value),
-        native_place: document.getElementById('form_native_place').value,
-        graduate_school: document.getElementById('form_graduate_school').value,
-        major: document.getElementById('form_major').value,
-        education: document.getElementById('form_education').value,
-        admission_time: document.getElementById('form_admission_time').value,
-        graduation_time: document.getElementById('form_graduation_time').value,
+        native_place: document.getElementById('form_native_place').value || null,
+        graduate_school: document.getElementById('form_graduate_school').value || null,
+        major: document.getElementById('form_major').value || null,
+        education: document.getElementById('form_education').value || null,
+        admission_time: document.getElementById('form_admission_time').value || null,
+        graduation_time: document.getElementById('form_graduation_time').value || null,
         advisor_id: document.getElementById('form_advisor_id').value ? parseInt(document.getElementById('form_advisor_id').value) : null
     };
     try {

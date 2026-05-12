@@ -1,8 +1,8 @@
 from sqlalchemy import Column,String,Integer,Date
 from database import Base
 
-#创建基类
 class Employment(Base):
+    """就业信息表模型，存储学生就业相关信息"""
     __tablename__ = "employment"
     employment_id = Column(Integer,primary_key=True,autoincrement=True,comment="就业id")
     student_no = Column(String(100), unique=True,comment="学号")

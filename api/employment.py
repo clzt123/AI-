@@ -29,11 +29,10 @@ def get_all_api(
         db: Session = Depends(get_db)
 ) -> Dict[str, Any]:
     """获取所有就业信息列表，支持分页和条件筛选"""
-    skip = (page - 1) * page_size
-    emp_list = get_all_service(db, skip, page_size, student_name, company_name, class_id)
+    result = get_all_service(db, page, page_size, student_name, company_name, class_id)
     return {"code": 200,
             "message": "查询成功",
-            "data": emp_list}
+            **result}
 
 
 @router.get("/salary/range", response_model=dict)

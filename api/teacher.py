@@ -26,9 +26,9 @@ def get_all_teachers(db: Session = Depends(get_db)) -> Dict[str, Any]:
     return {"code": 200, "message": "查询成功", "data": teachers}
 
 @router.post('/create', response_model=dict)
-def add_teacher(t: TeacherCreate, db: Session = Depends(get_db), _: AuthUser = Depends(require_permission("teacher", "create"))) -> Dict[str, Any]:
+def add_teacher(teacher_data: TeacherCreate, db: Session = Depends(get_db), _: AuthUser = Depends(require_permission("teacher", "create"))) -> Dict[str, Any]:
     """创建新的老师信息记录"""
-    result = create_teacher(db, t)
+    result = create_teacher(db, teacher_data)
     return {"code": 200, "message": "添加成功", "data": TeacherResponse.model_validate(result).model_dump()}
 
 @router.get('/check', response_model=dict)

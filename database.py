@@ -1,18 +1,10 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base, Session
-import os
-from dotenv import load_dotenv
 from typing import Generator
+from config import DB_USER, DB_PASSWORD, DB_HOST, DB_NAME, DB_POOL_SIZE
+from urllib.parse import quote_plus
 
-load_dotenv()
-
-DB_USER = os.getenv("DB_USER", "root")
-DB_PASSWORD = os.getenv("DB_PASSWORD")
-DB_HOST = os.getenv("DB_HOST", "localhost")
-DB_NAME = os.getenv("DB_NAME", "student")
-DB_POOL_SIZE = int(os.getenv("DB_POOL_SIZE", "5"))
-
-SQL_URL = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}"
+SQL_URL = f"mysql+pymysql://{DB_USER}:{quote_plus(DB_PASSWORD or '')}@{DB_HOST}/{DB_NAME}"
 
 engine = create_engine(
     SQL_URL,
