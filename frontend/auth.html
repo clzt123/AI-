@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录 - 学生管理系统</title>
+    <link rel="stylesheet" href="/static/css/common.css">
+    <style>
+        .auth-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .auth-box {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            width: 400px;
+        }
+        .auth-box h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .btn-auth {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .btn-auth:hover {
+            opacity: 0.9;
+        }
+        .auth-switch {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+        }
+        .auth-switch a {
+            color: #667eea;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .auth-switch a:hover {
+            text-decoration: underline;
+        }
+        .hidden {
+            display: none;
+        }
+        .error-msg {
+            color: #e74c3c;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        .input-error {
+            border-color: #e74c3c !important;
+        }
+        .input-success {
+            border-color: #27ae60 !important;
+        }
+        .validation-hint {
+            color: #999;
+            font-size: 11px;
+            margin-top: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-box">
+            <h2 id="auth-title">用户登录</h2>
+            <form id="auth-form">
+                <div class="form-group">
+                    <label for="username">用户名</label>
+                    <input type="text" id="username" name="username" required placeholder="请输入用户名" onblur="validateUsername()" oninput="clearFieldError(this)">
+                    <div id="username-error" class="error-msg"></div>
+                    <div class="validation-hint">3-20个字符，支持字母、数字、下划线和中文</div>
+                </div>
+                <div class="form-group">
+                    <label for="password">密码</label>
+                    <input type="password" id="password" name="password" required placeholder="请输入密码" onblur="validatePassword()" oninput="clearFieldError(this)">
+                    <div id="password-error" class="error-msg"></div>
+                    <div class="validation-hint">至少6个字符，必须包含字母和数字</div>
+                </div>
+                <div id="register-fields" class="hidden">
+                    <div class="form-group">
+                        <label for="confirm_password">确认密码</label>
+                        <input type="password" id="confirm_password" name="confirm_password" placeholder="请再次输入密码" onblur="validateConfirmPassword()" oninput="clearFieldError(this)">
+                        <div id="confirm_password-error" class="error-msg"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="role">角色</label>
+                        <select id="role" name="role">
+                            <option value="admin">管理员</option>
+                            <option value="homeroom">班主任</option>
+                            <option value="teacher">任课老师</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="real_name">真实姓名</label>
+                        <input type="text" id="real_name" name="real_name" placeholder="请输入真实姓名">
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">联系电话</label>
+                        <input type="text" id="phone" name="phone" placeholder="请输入联系电话" onblur="validatePhone()" oninput="clearFieldError(this)">
+                        <div id="phone-error" class="error-msg"></div>
+                        <div class="validation-hint">请输入11位有效手机号</div>
+                    </div>
+                </div>
+                <div id="error-message" class="error-msg"></div>
+                <button type="submit" class="btn-auth" id="submit-btn">登录</button>
+            </form>
+            <div class="auth-switch">
+                <span id="switch-text">还没有账号？</span>
+                <a id="switch-link" onclick="toggleAuthMode()">立即注册</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isLoginMode = true;
+
+        function toggleAuthMode() {
+            isLoginMode = !isLoginMode;
+            document.getElementById('auth-title').textContent = isLoginMode ? '用户登录' : '用户注册';
+            document.getElementById('submit-btn').textContent = isLoginMode ? '登录' : '注册';
+            document.getElementById('switch-text').textContent = isLoginMode ? '还没有账号？' : '已有账号？';
+            document.getElementById('switch-link').textContent = isLoginMode ? '立即注册' : '立即登录';
+            document.getElementById('register-fields').classList.toggle('hidden', isLoginMode);
+            document.getElementById('error-message').textContent = '';
+            clearAllErrors();
+        }
+
+        function clearFieldError(field) {
+            field.classList.remove('input-error');
+            var errorEl = document.getElementById(field.id + '-error');
+            if (errorEl) errorEl.textContent = '';
+        }
+
+        function setFieldError(fieldId, message) {
+            var field = document.getElementById(fieldId);
+            if (field) field.classList.add('input-error');
+            var errorEl = document.getElementById(fieldId + '-error');
+            if (errorEl) errorEl.textContent = message;
+        }
+
+        function clearAllErrors() {
+            document.querySelectorAll('.input-error').forEach(function(el) {
+                el.classList.remove('input-error');
+            });
+            document.querySelectorAll('.error-msg').forEach(function(el) {
+                el.textContent = '';
+            });
+        }
+
+        function validateUsername() {
+            var username = document.getElementById('username').value.trim();
+            if (!username) {
+                setFieldError('username', '用户名不能为空');
+                return false;
+            }
+            if (username.length < 3 || username.length > 20) {
+                setFieldError('username', '用户名长度必须在3-20个字符之间');
+                return false;
+            }
+            if (!/^[a-zA-Z0-9_\u4e00-\u9fa5]+$/.test(username)) {
+                setFieldError('username', '用户名只能包含字母、数字、下划线和中文');
+                return false;
+            }
+            document.getElementById('username').classList.add('input-success');
+            return true;
+        }
+
+        function validatePassword() {
+            var password = document.getElementById('password').value;
+            if (!password) {
+                setFieldError('password', '密码不能为空');
+                return false;
+            }
+            if (password.length < 6) {
+                setFieldError('password', '密码长度不能少于6个字符');
+                return false;
+            }
+            if (password.length > 50) {
+                setFieldError('password', '密码长度不能超过50个字符');
+                return false;
+            }
+            if (!/[a-zA-Z]/.test(password)) {
+                setFieldError('password', '密码必须包含至少一个字母');
+                return false;
+            }
+            if (!/\d/.test(password)) {
+                setFieldError('password', '密码必须包含至少一个数字');
+                return false;
+            }
+            document.getElementById('password').classList.add('input-success');
+            return true;
+        }
+
+        function validateConfirmPassword() {
+            var password = document.getElementById('password').value;
+            var confirmPassword = document.getElementById('confirm_password').value;
+            if (!confirmPassword) {
+                setFieldError('confirm_password', '请再次输入密码');
+                return false;
+            }
+            if (password !== confirmPassword) {
+                setFieldError('confirm_password', '两次输入的密码不一致');
+                return false;
+            }
+            document.getElementById('confirm_password').classList.add('input-success');
+            return true;
+        }
+
+        function validatePhone() {
+            var phone = document.getElementById('phone').value.trim();
+            if (phone && phone.length > 0) {
+                if (!/^1[3-9]\d{9}$/.test(phone)) {
+                    setFieldError('phone', '手机号格式不正确，请输入11位有效手机号');
+                    return false;
+                }
+                document.getElementById('phone').classList.add('input-success');
+            }
+            return true;
+        }
+
+        function validateRegisterForm() {
+            var valid = true;
+            if (!validateUsername()) valid = false;
+            if (!validatePassword()) valid = false;
+            if (!validateConfirmPassword()) valid = false;
+            if (!validatePhone()) valid = false;
+            return valid;
+        }
+
+        document.getElementById('auth-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const errorMsg = document.getElementById('error-message');
+            errorMsg.textContent = '';
+
+            if (!isLoginMode && !validateRegisterForm()) {
+                return;
+            }
+
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+
+            try {
+                let url, body;
+                if (isLoginMode) {
+                    url = '/api/auth/login';
+                    body = { username, password };
+                } else {
+                    url = '/api/auth/register';
+                    body = {
+                        username,
+                        password,
+                        role: document.getElementById('role').value,
+                        real_name: document.getElementById('real_name').value.trim() || null,
+                        phone: document.getElementById('phone').value.trim() || null
+                    };
+                }
+
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+
+                const result = await response.json();
+
+                if (result.code === 200) {
+                    if (isLoginMode) {
+                        localStorage.setItem('token', result.data.access_token);
+                        localStorage.setItem('user', JSON.stringify(result.data.user));
+                        alert('登录成功！');
+                        window.location.href = '/';
+                    } else {
+                        alert('注册成功！请登录。');
+                        toggleAuthMode();
+                    }
+                } else {
+                    errorMsg.textContent = result.message || '操作失败';
+                }
+            } catch (error) {
+                errorMsg.textContent = '网络错误，请稍后重试';
+            }
+        });
+    </script>
+</body>
+</html>

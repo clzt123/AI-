@@ -14,11 +14,12 @@ from service.student_info import (
     restore_student_service,
     get_deleted_student_list
 )
+from service.auth import require_permission, AuthUser
 
 router = APIRouter(prefix="/students", tags=["学生管理"])
 
 @router.post("/create", response_model=dict)
-def create_student_route(s: StudentCreate, db: Session = Depends(get_db)) -> Dict[str, Any]:
+def create_student_route(s: StudentCreate, db: Session = Depends(get_db), _: AuthUser = Depends(require_permission("student_info", "create"))) -> Dict[str, Any]:
     """创建新的学生信息记录"""
     result = create_student(db, s)
     return {"code": 200, "message": "添加成功", "data": StudentResponse.model_validate(result).model_dump()}
@@ -63,19 +64,19 @@ def get_student_by_id_route(id: int, db: Session=Depends(get_db)) -> Dict[str, A
     return {"code": 200, "message": "查询成功", "data": StudentResponse.model_validate(result).model_dump()}
 
 @router.put("/update/{id}", response_model=dict)
-def update_student(id:int, s:StudentUpdate, db:Session=Depends(get_db)) -> Dict[str, Any]:
+def update_student(id:int, s:StudentUpdate, db:Session=Depends(get_db), _: AuthUser = Depends(require_permission("student_info", "update"))) -> Dict[str, Any]:
     """更新指定学生的信息"""
     result = update_student_service(db, id, s)
     return {"code": 200, "message": "修改成功", "data": StudentResponse.model_validate(result).model_dump()}
 
 @router.delete("/delete/{id}", response_model=dict)
-def delete_student(id:int, db:Session=Depends(get_db)) -> Dict[str, Any]:
+def delete_student(id:int, db:Session=Depends(get_db), _: AuthUser = Depends(require_permission("student_info", "delete"))) -> Dict[str, Any]:
     """逻辑删除指定学生信息"""
     delete_student_service(db, id)
     return {"code": 200, "message": "删除成功", "data": None}
 
 @router.put("/restore/{id}", response_model=dict)
-def restore_student_route(id: int, db:Session=Depends(get_db)) -> Dict[str, Any]:
+def restore_student_route(id: int, db:Session=Depends(get_db), _: AuthUser = Depends(require_permission("student_info", "restore"))) -> Dict[str, Any]:
     """恢复已删除的学生信息"""
     restore_student_service(db, id)
     return {"code": 200, "message": "恢复成功", "data": None}

@@ -14,6 +14,7 @@ from service.employment import (
     restore_employment_service
 )
 from database import get_db
+from service.auth import require_permission, AuthUser
 
 router = APIRouter(prefix="/employments", tags=["就业管理"])
 
@@ -62,7 +63,7 @@ def get_employment_statistics(db: Session = Depends(get_db)) -> Dict[str, Any]:
 
 
 @router.post("/", response_model=dict)
-def create_employment_api(data: EmploymentCreate, db: Session = Depends(get_db)) -> Dict[str, Any]:
+def create_employment_api(data: EmploymentCreate, db: Session = Depends(get_db), _: AuthUser = Depends(require_permission("employment", "create"))) -> Dict[str, Any]:
     """创建新的就业信息记录"""
     emp = create_employment_service(db, data)
     return {"code": 200,
@@ -80,7 +81,7 @@ def get_student_no_api(student_no: str, db: Session = Depends(get_db)) -> Dict[s
 
 
 @router.put("/{employment_id}", response_model=dict)
-def update_employment_api(employment_id: int, data: EmploymentUpdate, db: Session = Depends(get_db)) -> Dict[str, Any]:
+def update_employment_api(employment_id: int, data: EmploymentUpdate, db: Session = Depends(get_db), _: AuthUser = Depends(require_permission("employment", "update"))) -> Dict[str, Any]:
     """更新指定就业信息记录"""
     emp = update_employment_service(db, employment_id, data)
     return {"code": 200,
@@ -89,7 +90,7 @@ def update_employment_api(employment_id: int, data: EmploymentUpdate, db: Sessio
 
 
 @router.delete("/{employment_id}", response_model=dict)
-def delete_employment_api(employment_id: int, db: Session = Depends(get_db)) -> Dict[str, Any]:
+def delete_employment_api(employment_id: int, db: Session = Depends(get_db), _: AuthUser = Depends(require_permission("employment", "delete"))) -> Dict[str, Any]:
     """逻辑删除指定就业信息记录"""
     delete_employment_service(db, employment_id)
     return {"code": 200,
@@ -98,7 +99,7 @@ def delete_employment_api(employment_id: int, db: Session = Depends(get_db)) -> 
 
 
 @router.put("/restore/{employment_id}", response_model=dict)
-def restore_employment_api(employment_id: int, db: Session = Depends(get_db)) -> Dict[str, Any]:
+def restore_employment_api(employment_id: int, db: Session = Depends(get_db), _: AuthUser = Depends(require_permission("employment", "restore"))) -> Dict[str, Any]:
     """恢复已删除的就业信息记录"""
     restore_employment_service(db, employment_id)
     return {

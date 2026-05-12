@@ -7,13 +7,13 @@ class StudentCreate(BaseModel):
     student_no: str
     class_id: int
     student_name: str
-    native_place: str
-    graduate_school: str
-    major: str
-    admission_time: date
-    graduation_time: date
-    education: str
-    advisor_id: int
+    native_place: Optional[str] = None
+    graduate_school: Optional[str] = None
+    major: Optional[str] = None
+    admission_time: Optional[date] = None
+    graduation_time: Optional[date] = None
+    education: Optional[str] = None
+    advisor_id: Optional[int] = None
     age: int = Field(...,ge=1) #年龄必须大于等于1
     gender: str = Field(...,pattern=r"^(男|女)$") #只能填入男或女
 

@@ -7,6 +7,7 @@ from schemas.class_info import ClassResponse, ClassCreate, ClassUpdate
 from service.class_info_service import get_all_classinfo_service, get_one_classinfo_service, create_class_service, \
     update_class_service, delete_class_service, restore_class_service, count_class_month_service, \
     get_class_by_lecturer_id_service
+from service.auth import require_permission, AuthUser
 
 class_router = APIRouter(prefix="/classes",tags=["班级管理"])
 
@@ -23,23 +24,23 @@ def get_one_classinfo(class_id: int,db: Session = Depends(get_db)) -> Dict[str, 
     return {"code": 200, "message": "查询成功", "data": ClassResponse.model_validate(res).model_dump()}
 
 @class_router.post("/add", response_model=dict)
-def add_class(cls: ClassUpdate,db: Session = Depends(get_db)) -> Dict[str, Any]:
+def add_class(cls: ClassUpdate,db: Session = Depends(get_db), _: AuthUser = Depends(require_permission("class_info", "create"))) -> Dict[str, Any]:
     """创建新的班级信息记录"""
     return {"code": 200, "message": "添加成功", "data": ClassResponse.model_validate(create_class_service(db, cls)).model_dump()}
 
 @class_router.put("/update/{class_id}", response_model=dict)
-def put_update_class(class_id: int,update_data: ClassUpdate,db: Session = Depends(get_db)) -> Dict[str, Any]:
+def put_update_class(class_id: int,update_data: ClassUpdate,db: Session = Depends(get_db), _: AuthUser = Depends(require_permission("class_info", "update"))) -> Dict[str, Any]:
     """更新指定班级的信息"""
     return {"code": 200, "message": "修改成功", "data": ClassResponse.model_validate(update_class_service(db, class_id, update_data)).model_dump()}
 
 @class_router.delete("/delete/{class_id}", summary="删除班级", response_model=dict)
-def delete_class(class_id: int,db: Session = Depends(get_db)) -> Dict[str, Any]:
+def delete_class(class_id: int,db: Session = Depends(get_db), _: AuthUser = Depends(require_permission("class_info", "delete"))) -> Dict[str, Any]:
     """逻辑删除指定班级信息"""
     delete_class_service(db, class_id)
     return {"code": 200, "message": "删除成功", "data": None}
 
 @class_router.put("/restore/{class_id}", summary="恢复逻辑删除的班级", response_model=dict)
-def restore_class(class_id: int,db: Session = Depends(get_db)) -> Dict[str, Any]:
+def restore_class(class_id: int,db: Session = Depends(get_db), _: AuthUser = Depends(require_permission("class_info", "restore"))) -> Dict[str, Any]:
     """恢复已删除的班级信息"""
     restore_class_service(db, class_id)
     return {"code": 200, "message": "恢复成功", "data": None}

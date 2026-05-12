@@ -11,11 +11,12 @@ from schemas.score import (
     StudentFailResponse, ClassAvgScoreResponse
 )
 from database import get_db
+from service.auth import require_permission, AuthUser
 
 score_router = APIRouter()
 
 @score_router.post('/scores', response_model=dict, summary="添加成绩")
-def add_score(score: ScoreCreate, db: Session = Depends(get_db)) -> Dict[str, Any]:
+def add_score(score: ScoreCreate, db: Session = Depends(get_db), _: AuthUser = Depends(require_permission("score", "create"))) -> Dict[str, Any]:
     """添加新的成绩记录"""
     result = add_score_service(db, score)
     return {"code": 200, "message": "添加成功", "data": ScoreResponseItem.model_validate(result).model_dump()}
@@ -34,13 +35,13 @@ def get_scores(
     return result
 
 @score_router.put("/scores/{id}", summary="修改成绩")
-def update_score(id: int, update_data: ScoreUpdate, db: Session = Depends(get_db)) -> Dict[str, Any]:
+def update_score(id: int, update_data: ScoreUpdate, db: Session = Depends(get_db), _: AuthUser = Depends(require_permission("score", "update"))) -> Dict[str, Any]:
     """更新指定成绩记录"""
     data = update_score_service(db, id, update_data)
     return {"code":200,"message":"修改成功","data": ScoreResponseItem.model_validate(data).model_dump() if data else None}
 
 @score_router.delete("/scores/{id}", summary="删除成绩")
-def delete_score(id: int, db: Session = Depends(get_db)) -> Dict[str, Any]:
+def delete_score(id: int, db: Session = Depends(get_db), _: AuthUser = Depends(require_permission("score", "delete"))) -> Dict[str, Any]:
     """逻辑删除指定成绩记录"""
     delete_score_service(db, id)
     return {"code":200,"message":"删除成功","data":None}
@@ -50,7 +51,8 @@ def restore_score(
     id: int = None,
     student_no: str = None,
     exam_order: int = None,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    _: AuthUser = Depends(require_permission("score", "restore"))
 ) -> Dict[str, Any]:
     """恢复已删除的成绩记录，支持批量恢复"""
     count = restore_score_service(db, id, student_no, exam_order)

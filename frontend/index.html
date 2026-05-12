@@ -5,6 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>学生管理系统</title>
     <link rel="stylesheet" href="/static/css/common.css">
+    <script src="/static/js/auth-guard.js"></script>
+    <style>
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .user-name {
+            color: #666;
+            font-size: 14px;
+        }
+        .btn-logout {
+            padding: 8px 16px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-logout:hover {
+            background: #c0392b;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -22,6 +46,10 @@
         <div class="main-content">
             <div class="header">
                 <h1>欢迎来到学生管理系统</h1>
+                <div class="user-info">
+                    <span class="user-name" id="user-display-name"></span>
+                    <button class="btn-logout" onclick="logout()">退出登录</button>
+                </div>
             </div>
             <div class="content-card">
                 <div class="stat-cards">
@@ -49,5 +77,12 @@
             </div>
         </div>
     </div>
+    <script>
+        var user = getCurrentUser();
+        if (user) {
+            var roleNames = {admin: '管理员', homeroom: '班主任', teacher: '任课老师'};
+            document.getElementById('user-display-name').textContent = user.real_name + ' (' + (roleNames[user.role] || user.role) + ')';
+        }
+    </script>
 </body>
 </html>

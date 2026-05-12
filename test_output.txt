@@ -1,0 +1,84 @@
+Admin token: OK
+Homeroom token: OK
+Teacher token: OK
+
+=== Student Module ===
+FAIL | Admin create | expect=200 got=422 | {"code":422,"message":"请求参数校验失败","data":["{'type': 'missing', 'loc': ('body', 'native_place'), 'msg'
+FAIL | Homeroom create | expect=200 got=422 | {"code":422,"message":"请求参数校验失败","data":["{'type': 'missing', 'loc': ('body', 'native_place'), 'msg'
+PASS | Teacher create (deny) | expect=403 got=403
+PASS | Admin update | expect=200 got=200
+PASS | Homeroom update | expect=200 got=200
+PASS | Teacher update (deny) | expect=403 got=403
+PASS | Admin delete | expect=200 got=200
+PASS | Homeroom delete (deny) | expect=403 got=403
+PASS | Teacher delete (deny) | expect=403 got=403
+PASS | Admin restore | expect=200 got=200
+PASS | Homeroom restore (deny) | expect=403 got=403
+PASS | Teacher restore (deny) | expect=403 got=403
+
+=== Teacher Module ===
+FAIL | Admin create | expect=200 got=422 | {"code":422,"message":"请求参数校验失败","data":["{'type': 'string_too_short', 'loc': ('body', 'teacher_name
+PASS | Homeroom create (deny) | expect=403 got=403
+PASS | Teacher create (deny) | expect=403 got=403
+PASS | Admin update | expect=200 got=200
+PASS | Homeroom update (deny) | expect=403 got=403
+PASS | Teacher update (deny) | expect=403 got=403
+PASS | Admin delete | expect=200 got=200
+PASS | Homeroom delete (deny) | expect=403 got=403
+PASS | Teacher delete (deny) | expect=403 got=403
+PASS | Admin restore | expect=200 got=200
+PASS | Homeroom restore (deny) | expect=403 got=403
+PASS | Teacher restore (deny) | expect=403 got=403
+
+=== Score Module ===
+FAIL | Admin add | expect=200 got=422 | {"code":422,"message":"请求参数校验失败","data":["{'type': 'string_too_short', 'loc': ('body', 'student_no')
+FAIL | Homeroom add | expect=200 got=422 | {"code":422,"message":"请求参数校验失败","data":["{'type': 'string_too_short', 'loc': ('body', 'student_no')
+FAIL | Teacher add | expect=200 got=422 | {"code":422,"message":"请求参数校验失败","data":["{'type': 'string_too_short', 'loc': ('body', 'student_no')
+FAIL | Admin update | expect=200 got=404 | {"code":404,"message":"成绩不存在","data":null}
+FAIL | Homeroom update | expect=200 got=404 | {"code":404,"message":"成绩不存在","data":null}
+PASS | Teacher update (deny) | expect=403 got=403
+FAIL | Admin delete | expect=200 got=404 | {"code":404,"message":"成绩不存在","data":null}
+PASS | Homeroom delete (deny) | expect=403 got=403
+PASS | Teacher delete (deny) | expect=403 got=403
+FAIL | Admin restore | expect=200 got=404 | {"code":404,"message":"未找到任何已删除的成绩数据","data":null}
+PASS | Homeroom restore (deny) | expect=403 got=403
+PASS | Teacher restore (deny) | expect=403 got=403
+
+=== Class Module ===
+FAIL | Admin create | expect=200 got=400 | {"code":400,"message":"班级名称已存在，不能重复添加","data":null}
+PASS | Homeroom create (deny) | expect=403 got=403
+PASS | Teacher create (deny) | expect=403 got=403
+PASS | Admin update | expect=200 got=200
+PASS | Homeroom update (deny) | expect=403 got=403
+PASS | Teacher update (deny) | expect=403 got=403
+PASS | Admin delete | expect=200 got=200
+PASS | Homeroom delete (deny) | expect=403 got=403
+PASS | Teacher delete (deny) | expect=403 got=403
+PASS | Admin restore | expect=200 got=200
+PASS | Homeroom restore (deny) | expect=403 got=403
+PASS | Teacher restore (deny) | expect=403 got=403
+
+=== Employment Module ===
+FAIL | Admin create | expect=200 got=422 | {"code":422,"message":"请求参数校验失败","data":["{'type': 'string_pattern_mismatch', 'loc': ('body', 'stude
+FAIL | Homeroom create | expect=200 got=422 | {"code":422,"message":"请求参数校验失败","data":["{'type': 'string_pattern_mismatch', 'loc': ('body', 'stude
+PASS | Teacher create (deny) | expect=403 got=403
+PASS | Admin update | expect=200 got=200
+PASS | Homeroom update | expect=200 got=200
+PASS | Teacher update (deny) | expect=403 got=403
+PASS | Admin delete | expect=200 got=200
+PASS | Homeroom delete (deny) | expect=403 got=403
+PASS | Teacher delete (deny) | expect=403 got=403
+PASS | Admin restore | expect=200 got=200
+PASS | Homeroom restore (deny) | expect=403 got=403
+PASS | Teacher restore (deny) | expect=403 got=403
+
+=== User Module ===
+FAIL | Admin register | expect=200 got=422 | {"code":422,"message":"请求参数校验失败","data":["{'type': 'value_error', 'loc': ('body', 'password'), 'msg'
+PASS | Homeroom register (deny) | expect=403 got=403
+PASS | Teacher register (deny) | expect=403 got=403
+
+=== Summary ===
+Passed: 49
+Failed: 14
+Total: 63
+Pass rate: 77.8%

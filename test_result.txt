@@ -1,0 +1,132 @@
+﻿Admin token: OK
+Homeroom token: OK
+Teacher token: OK
+
+=== Student Module ===
+FAIL: Admin create - expected 200, got 422
+  Response: {"code":422,"message":"请求参数校验失败","data":["{'type': 'missing', 'loc': ('body', 'native_place'), 'msg': 'Field required', 'input': {'student_no': 'T1', 
+FAIL: Homeroom create - expected 200, got 422
+  Response: {"code":422,"message":"请求参数校验失败","data":["{'type': 'missing', 'loc': ('body', 'native_place'), 'msg': 'Field required', 'input': {'student_no': 'T2', 
+FAIL: Teacher create (deny) - expected 403, got 422
+  Response: {"code":422,"message":"请求参数校验失败","data":["{'type': 'missing', 'loc': ('body', 'native_place'), 'msg': 'Field required', 'input': {'student_no': 'T3', 
+PASS: Admin update
+PASS: Homeroom update
+FAIL: Teacher update (deny) - expected 403, got 200
+  Response: {"code":200,"message":"修改成功","data":{"student_no":"XS2023012","class_id":1,"student_name":"U","native_place":"成都","graduate_school":"四川大学","major":"软件
+PASS: Admin delete
+FAIL: Homeroom delete (deny) - expected 403, got 200
+  Response: {"code":200,"message":"删除成功","data":null}
+FAIL: Teacher delete (deny) - expected 403, got 200
+  Response: {"code":200,"message":"删除成功","data":null}
+PASS: Admin restore
+FAIL: Homeroom restore (deny) - expected 403, got 200
+  Response: {"code":200,"message":"恢复成功","data":null}
+FAIL: Teacher restore (deny) - expected 403, got 200
+  Response: {"code":200,"message":"恢复成功","data":null}
+
+=== Teacher Module ===
+FAIL: Admin create - expected 200, got 422
+  Response: {"code":422,"message":"请求参数校验失败","data":["{'type': 'string_too_short', 'loc': ('body', 'teacher_name'), 'msg': 'String should have at least 2 characte
+FAIL: Homeroom create (deny) - expected 403, got 422
+  Response: {"code":422,"message":"请求参数校验失败","data":["{'type': 'string_too_short', 'loc': ('body', 'teacher_name'), 'msg': 'String should have at least 2 characte
+FAIL: Teacher create (deny) - expected 403, got 422
+  Response: {"code":422,"message":"请求参数校验失败","data":["{'type': 'string_too_short', 'loc': ('body', 'teacher_name'), 'msg': 'String should have at least 2 characte
+PASS: Admin update
+FAIL: Homeroom update (deny) - expected 403, got 200
+  Response: {"code":200,"message":"修改成功","data":{"teacher_id":1,"teacher_name":"ZU","gender":"女","phone":"13800138001"}}
+FAIL: Teacher update (deny) - expected 403, got 200
+  Response: {"code":200,"message":"修改成功","data":{"teacher_id":1,"teacher_name":"LU","gender":"女","phone":"13800138001"}}
+PASS: Admin delete
+FAIL: Homeroom delete (deny) - expected 403, got 200
+  Response: {"code":200,"message":"删除成功","data":null}
+FAIL: Teacher delete (deny) - expected 403, got 200
+  Response: {"code":200,"message":"删除成功","data":null}
+PASS: Admin restore
+FAIL: Homeroom restore (deny) - expected 403, got 200
+  Response: {"code":200,"message":"恢复成功","data":{"teacher_id":2,"teacher_name":"李老师","gender":"男","phone":"13800138002"}}
+FAIL: Teacher restore (deny) - expected 403, got 200
+  Response: {"code":200,"message":"恢复成功","data":{"teacher_id":3,"teacher_name":"王老师","gender":"女","phone":"13800138003"}}
+
+=== Score Module ===
+FAIL: Admin add - expected 200, got 422
+  Response: {"code":422,"message":"请求参数校验失败","data":["{'type': 'string_too_short', 'loc': ('body', 'student_no'), 'msg': 'String should have at least 3 characters
+FAIL: Homeroom add - expected 200, got 422
+  Response: {"code":422,"message":"请求参数校验失败","data":["{'type': 'string_too_short', 'loc': ('body', 'student_no'), 'msg': 'String should have at least 3 characters
+FAIL: Teacher add - expected 200, got 422
+  Response: {"code":422,"message":"请求参数校验失败","data":["{'type': 'string_too_short', 'loc': ('body', 'student_no'), 'msg': 'String should have at least 3 characters
+FAIL: Admin update - expected 200, got 404
+  Response: {"code":404,"message":"成绩不存在","data":null}
+FAIL: Homeroom update - expected 200, got 404
+  Response: {"code":404,"message":"成绩不存在","data":null}
+FAIL: Teacher update (deny) - expected 403, got 404
+  Response: {"code":404,"message":"成绩不存在","data":null}
+FAIL: Admin delete - expected 200, got 404
+  Response: {"code":404,"message":"成绩不存在","data":null}
+FAIL: Homeroom delete (deny) - expected 403, got 404
+  Response: {"code":404,"message":"成绩不存在","data":null}
+FAIL: Teacher delete (deny) - expected 403, got 404
+  Response: {"code":404,"message":"成绩不存在","data":null}
+FAIL: Admin restore - expected 200, got 404
+  Response: {"code":404,"message":"未找到任何已删除的成绩数据","data":null}
+FAIL: Homeroom restore (deny) - expected 403, got 404
+  Response: {"code":404,"message":"未找到任何已删除的成绩数据","data":null}
+FAIL: Teacher restore (deny) - expected 403, got 404
+  Response: {"code":404,"message":"未找到任何已删除的成绩数据","data":null}
+
+=== Class Module ===
+PASS: Admin create
+FAIL: Homeroom create (deny) - expected 403, got 200
+  Response: {"code":200,"message":"添加成功","data":{"class_name":"C2","start_time":null,"head_teacher_id":null,"lecturer_id":2,"class_id":25,"is_deleted":0,"create_t
+FAIL: Teacher create (deny) - expected 403, got 200
+  Response: {"code":200,"message":"添加成功","data":{"class_name":"C3","start_time":null,"head_teacher_id":null,"lecturer_id":3,"class_id":26,"is_deleted":0,"create_t
+PASS: Admin update
+FAIL: Homeroom update (deny) - expected 403, got 200
+  Response: {"code":200,"message":"修改成功","data":{"class_name":"CU2","start_time":"2023-01-10","head_teacher_id":1,"lecturer_id":2,"class_id":1,"is_deleted":0,"cre
+FAIL: Teacher update (deny) - expected 403, got 200
+  Response: {"code":200,"message":"修改成功","data":{"class_name":"CU3","start_time":"2023-01-10","head_teacher_id":1,"lecturer_id":2,"class_id":1,"is_deleted":0,"cre
+PASS: Admin delete
+FAIL: Homeroom delete (deny) - expected 403, got 200
+  Response: {"code":200,"message":"删除成功","data":null}
+FAIL: Teacher delete (deny) - expected 403, got 200
+  Response: {"code":200,"message":"删除成功","data":null}
+PASS: Admin restore
+FAIL: Homeroom restore (deny) - expected 403, got 200
+  Response: {"code":200,"message":"恢复成功","data":null}
+FAIL: Teacher restore (deny) - expected 403, got 200
+  Response: {"code":200,"message":"恢复成功","data":null}
+
+=== Employment Module ===
+FAIL: Admin create - expected 200, got 422
+  Response: {"code":422,"message":"请求参数校验失败","data":["{'type': 'string_pattern_mismatch', 'loc': ('body', 'student_no'), 'msg': \"String should match pattern '^XS
+FAIL: Homeroom create - expected 200, got 422
+  Response: {"code":422,"message":"请求参数校验失败","data":["{'type': 'string_pattern_mismatch', 'loc': ('body', 'student_no'), 'msg': \"String should match pattern '^XS
+FAIL: Teacher create (deny) - expected 403, got 422
+  Response: {"code":422,"message":"请求参数校验失败","data":["{'type': 'string_pattern_mismatch', 'loc': ('body', 'student_no'), 'msg': \"String should match pattern '^XS
+PASS: Admin update
+PASS: Homeroom update
+FAIL: Teacher update (deny) - expected 403, got 200
+  Response: {"code":200,"message":"修改成功","data":{"employment_id":1,"student_no":"XS2023001","student_name":"小明","class_id":1,"job_open_time":"2023-06-01","offer_s
+PASS: Admin delete
+FAIL: Homeroom delete (deny) - expected 403, got 200
+  Response: {"code":200,"message":"删除成功","data":null}
+FAIL: Teacher delete (deny) - expected 403, got 200
+  Response: {"code":200,"message":"删除成功","data":null}
+PASS: Admin restore
+FAIL: Homeroom restore (deny) - expected 403, got 200
+  Response: {"code":200,"message":"恢复成功","data":null}
+FAIL: Teacher restore (deny) - expected 403, got 200
+  Response: {"code":200,"message":"恢复成功","data":null}
+
+=== User Module ===
+FAIL: Admin register - expected 200, got 422
+  Response: {"code":422,"message":"请求参数校验失败","data":["{'type': 'value_error', 'loc': ('body', 'password'), 'msg': 'Value error, 密码长度不能少于6个字符', 'input': 'nu123', '
+FAIL: Homeroom register (deny) - expected 403, got 422
+  Response: {"code":422,"message":"请求参数校验失败","data":["{'type': 'value_error', 'loc': ('body', 'password'), 'msg': 'Value error, 密码长度不能少于6个字符', 'input': 'nu123', '
+FAIL: Teacher register (deny) - expected 403, got 422
+  Response: {"code":422,"message":"请求参数校验失败","data":["{'type': 'value_error', 'loc': ('body', 'password'), 'msg': 'Value error, 密码长度不能少于6个字符', 'input': 'nu123', '
+
+=== Summary ===
+Passed: 15
+Failed: 48
+Total: 63
+Pass rate: 23.8%

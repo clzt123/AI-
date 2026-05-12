@@ -12,3 +12,4 @@ from .employment import router as employment_router
 from .score import score_router
 from .student_info import router as student_info_router
 from .teacher import router as teacher_router
+from .user import user_router

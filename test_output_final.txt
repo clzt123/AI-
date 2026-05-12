@@ -1,0 +1,84 @@
+Admin token: OK
+Homeroom token: OK
+Teacher token: OK
+
+=== Student Module ===
+FAIL | Admin create | expect=200 got=422 | {"code":422,"message":"请求参数校验失败","data":["{'type': 'missing', 'loc': ('body', 'graduate_school'), 'm
+FAIL | Homeroom create | expect=200 got=422 | {"code":422,"message":"请求参数校验失败","data":["{'type': 'missing', 'loc': ('body', 'graduate_school'), 'm
+ERROR | Teacher create (deny) | HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /api/students/create (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001DEA5D7BBF0>: Failed to establish a new connection: [WinError 10061] 由于目标计算机积极拒绝，无法连接。'))
+ERROR | Admin update | HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /api/students/update/1 (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001DEA5D9A690>: Failed to establish a new connection: [WinError 10061] 由于目标计算机积极拒绝，无法连接。'))
+ERROR | Homeroom update | HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /api/students/update/1 (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001DEA5D9AE00>: Failed to establish a new connection: [WinError 10061] 由于目标计算机积极拒绝，无法连接。'))
+ERROR | Teacher update (deny) | HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /api/students/update/1 (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001DEA5D9B020>: Failed to establish a new connection: [WinError 10061] 由于目标计算机积极拒绝，无法连接。'))
+ERROR | Admin delete | HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /api/students/delete/1 (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001DEA5D9B240>: Failed to establish a new connection: [WinError 10061] 由于目标计算机积极拒绝，无法连接。'))
+ERROR | Homeroom delete (deny) | HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /api/students/delete/2 (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001DEA5D9B460>: Failed to establish a new connection: [WinError 10061] 由于目标计算机积极拒绝，无法连接。'))
+ERROR | Teacher delete (deny) | HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /api/students/delete/3 (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001DEA5D9B680>: Failed to establish a new connection: [WinError 10061] 由于目标计算机积极拒绝，无法连接。'))
+ERROR | Admin restore | HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /api/students/restore/1 (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001DEA5D9B8A0>: Failed to establish a new connection: [WinError 10061] 由于目标计算机积极拒绝，无法连接。'))
+ERROR | Homeroom restore (deny) | HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /api/students/restore/2 (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001DEA5D9BAC0>: Failed to establish a new connection: [WinError 10061] 由于目标计算机积极拒绝，无法连接。'))
+ERROR | Teacher restore (deny) | HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /api/students/restore/3 (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001DEA5D9BAC0>: Failed to establish a new connection: [WinError 10061] 由于目标计算机积极拒绝，无法连接。'))
+
+=== Teacher Module ===
+ERROR | Admin create | HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /api/teachers/create (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001DEA5D9B8A0>: Failed to establish a new connection: [WinError 10061] 由于目标计算机积极拒绝，无法连接。'))
+ERROR | Homeroom create (deny) | HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /api/teachers/create (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001DEA5D9B680>: Failed to establish a new connection: [WinError 10061] 由于目标计算机积极拒绝，无法连接。'))
+ERROR | Teacher create (deny) | HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /api/teachers/create (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001DEA5D9B460>: Failed to establish a new connection: [WinError 10061] 由于目标计算机积极拒绝，无法连接。'))
+ERROR | Admin update | HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /api/teachers/update/1 (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001DEA5D9B240>: Failed to establish a new connection: [WinError 10061] 由于目标计算机积极拒绝，无法连接。'))
+ERROR | Homeroom update (deny) | HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /api/teachers/update/1 (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001DEA5D9B020>: Failed to establish a new connection: [WinError 10061] 由于目标计算机积极拒绝，无法连接。'))
+ERROR | Teacher update (deny) | HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /api/teachers/update/1 (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001DEA5D9A8B0>: Failed to establish a new connection: [WinError 10061] 由于目标计算机积极拒绝，无法连接。'))
+ERROR | Admin delete | HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /api/teachers/delete/1 (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001DEA5D9A9C0>: Failed to establish a new connection: [WinError 10061] 由于目标计算机积极拒绝，无法连接。'))
+ERROR | Homeroom delete (deny) | HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /api/teachers/delete/2 (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001DEA5D9AE00>: Failed to establish a new connection: [WinError 10061] 由于目标计算机积极拒绝，无法连接。'))
+ERROR | Teacher delete (deny) | HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /api/teachers/delete/3 (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001DEA5D9ACF0>: Failed to establish a new connection: [WinError 10061] 由于目标计算机积极拒绝，无法连接。'))
+ERROR | Admin restore | HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /api/teachers/restore/1 (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001DEA5D9A470>: Failed to establish a new connection: [WinError 10061] 由于目标计算机积极拒绝，无法连接。'))
+ERROR | Homeroom restore (deny) | HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /api/teachers/restore/2 (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001DEA5D9A360>: Failed to establish a new connection: [WinError 10061] 由于目标计算机积极拒绝，无法连接。'))
+ERROR | Teacher restore (deny) | HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /api/teachers/restore/3 (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001DEA5D9A7A0>: Failed to establish a new connection: [WinError 10061] 由于目标计算机积极拒绝，无法连接。'))
+
+=== Score Module ===
+ERROR | Admin add | HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /api/scores (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001DEA5D99040>: Failed to establish a new connection: [WinError 10061] 由于目标计算机积极拒绝，无法连接。'))
+ERROR | Homeroom add | HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /api/scores (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001DEA5D9BDF0>: Failed to establish a new connection: [WinError 10061] 由于目标计算机积极拒绝，无法连接。'))
+ERROR | Teacher add | HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /api/scores (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001DEA5D9BDF0>: Failed to establish a new connection: [WinError 10061] 由于目标计算机积极拒绝，无法连接。'))
+ERROR | Admin update | HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /api/scores/1 (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001DEA5D99040>: Failed to establish a new connection: [WinError 10061] 由于目标计算机积极拒绝，无法连接。'))
+ERROR | Homeroom update | HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /api/scores/2 (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001DEA5D9A7A0>: Failed to establish a new connection: [WinError 10061] 由于目标计算机积极拒绝，无法连接。'))
+PASS | Teacher update (deny) | expect=403 got=403
+FAIL | Admin delete | expect=200 got=404 | {"code":404,"message":"成绩不存在","data":null}
+PASS | Homeroom delete (deny) | expect=403 got=403
+PASS | Teacher delete (deny) | expect=403 got=403
+FAIL | Admin restore | expect=200 got=404 | {"code":404,"message":"未找到任何已删除的成绩数据","data":null}
+PASS | Homeroom restore (deny) | expect=403 got=403
+PASS | Teacher restore (deny) | expect=403 got=403
+
+=== Class Module ===
+FAIL | Admin create | expect=200 got=400 | {"code":400,"message":"班级名称已存在，不能重复添加","data":null}
+PASS | Homeroom create (deny) | expect=403 got=403
+PASS | Teacher create (deny) | expect=403 got=403
+PASS | Admin update | expect=200 got=200
+PASS | Homeroom update (deny) | expect=403 got=403
+PASS | Teacher update (deny) | expect=403 got=403
+PASS | Admin delete | expect=200 got=200
+ERROR | Homeroom delete (deny) | HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /api/classes/delete/2 (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001DEA5D9A690>: Failed to establish a new connection: [WinError 10061] 由于目标计算机积极拒绝，无法连接。'))
+ERROR | Teacher delete (deny) | HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /api/classes/delete/3 (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001DEA5D9A360>: Failed to establish a new connection: [WinError 10061] 由于目标计算机积极拒绝，无法连接。'))
+ERROR | Admin restore | HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /api/classes/restore/1 (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001DEA5D9ACF0>: Failed to establish a new connection: [WinError 10061] 由于目标计算机积极拒绝，无法连接。'))
+ERROR | Homeroom restore (deny) | HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /api/classes/restore/2 (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001DEA5D9AE00>: Failed to establish a new connection: [WinError 10061] 由于目标计算机积极拒绝，无法连接。'))
+ERROR | Teacher restore (deny) | HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /api/classes/restore/3 (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001DEA5D9A9C0>: Failed to establish a new connection: [WinError 10061] 由于目标计算机积极拒绝，无法连接。'))
+
+=== Employment Module ===
+FAIL | Admin create | expect=200 got=500 | {"code":500,"message":"服务器内部错误","data":null}
+FAIL | Homeroom create | expect=200 got=409 | {"code":409,"message":"就业信息已存在","data":null}
+PASS | Teacher create (deny) | expect=403 got=403
+PASS | Admin update | expect=200 got=200
+PASS | Homeroom update | expect=200 got=200
+PASS | Teacher update (deny) | expect=403 got=403
+PASS | Admin delete | expect=200 got=200
+PASS | Homeroom delete (deny) | expect=403 got=403
+PASS | Teacher delete (deny) | expect=403 got=403
+PASS | Admin restore | expect=200 got=200
+PASS | Homeroom restore (deny) | expect=403 got=403
+PASS | Teacher restore (deny) | expect=403 got=403
+
+=== User Module ===
+FAIL | Admin register | expect=200 got=422 | {"code":422,"message":"请求参数校验失败","data":["{'type': 'value_error', 'loc': ('body', 'password'), 'msg'
+PASS | Homeroom register (deny) | expect=403 got=403
+PASS | Teacher register (deny) | expect=403 got=403
+
+=== Summary ===
+Passed: 23
+Failed: 8
+Total: 31
+Pass rate: 74.2%

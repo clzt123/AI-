@@ -3,4 +3,5 @@ from .score import Score
 from .employment import Employment
 from .teacher import Teacher
 from .class_info import ClassInfo
+from .user import User
 
