@@ -5,7 +5,6 @@ from typing import List, Optional, Tuple
 from models.teacher import Teacher
 from schemas.teacher import TeacherCreate, TeacherUpdate
 
-# 新增老师
 def create_teacher(db: Session, t: TeacherCreate) -> Teacher:
     """创建新的老师信息记录"""
     try:
@@ -18,7 +17,6 @@ def create_teacher(db: Session, t: TeacherCreate) -> Teacher:
         db.rollback()
         raise
 
-# 更新老师
 def update_teacher(db: Session, teacher_id: int, data: TeacherUpdate) -> Optional[Teacher]:
     """更新指定老师的信息"""
     try:
@@ -37,7 +35,6 @@ def update_teacher(db: Session, teacher_id: int, data: TeacherUpdate) -> Optiona
         db.rollback()
         raise
 
-# 逻辑删除
 def delete_teacher(db: Session, teacher_id: int) -> bool:
     """逻辑删除指定老师信息"""
     try:
@@ -53,7 +50,6 @@ def delete_teacher(db: Session, teacher_id: int) -> bool:
         db.rollback()
         raise
 
-#查询所有老师信息
 def get_all_teachers(db: Session) -> List[Teacher]:
     """查询所有未删除的老师信息"""
     teachers = db.query(Teacher)\
@@ -61,7 +57,6 @@ def get_all_teachers(db: Session) -> List[Teacher]:
                  .all()
     return teachers
 
-# 根据 ID 查询
 def get_teacher_by_id(db: Session, teacher_id: int) -> Optional[Teacher]:
     """根据ID查询老师信息"""
     return db.query(Teacher).filter(
@@ -69,7 +64,6 @@ def get_teacher_by_id(db: Session, teacher_id: int) -> Optional[Teacher]:
         Teacher.is_deleted == 0
     ).first()
 
-# 条件查询 + 分页
 def get_teacher_by_conditions(db: Session, teacher_name=None, gender=None, page=1, page_size=10) -> Tuple[int, List[Teacher]]:
     """根据条件查询老师信息并分页"""
     q = db.query(Teacher).filter(Teacher.is_deleted == 0)
@@ -81,7 +75,6 @@ def get_teacher_by_conditions(db: Session, teacher_name=None, gender=None, page=
     data = q.offset((page - 1) * page_size).limit(page_size).all()
     return total, data
 
-#查询所有被删除的老师
 def get_deleted_teachers(db: Session, page=1, page_size=10) -> Tuple[int, List[Teacher]]:
     """查询所有已删除的老师信息并分页"""
     q = db.query(Teacher).filter(Teacher.is_deleted == 1)
@@ -89,7 +82,6 @@ def get_deleted_teachers(db: Session, page=1, page_size=10) -> Tuple[int, List[T
     data = q.offset((page - 1) * page_size).limit(page_size).all()
     return total, data
 
-#恢复已删除老师
 def restore_teacher(db: Session, teacher_id: int) -> Optional[Teacher]:
     """恢复已删除的老师信息"""
     try:
@@ -107,7 +99,6 @@ def restore_teacher(db: Session, teacher_id: int) -> Optional[Teacher]:
         db.rollback()
         raise
 
-# 统计男女老师人数
 def get_teacher_stats(db: Session) -> dict:
     """统计男女老师人数"""
     result = db.query(

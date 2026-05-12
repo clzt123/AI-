@@ -1,5 +1,6 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 from typing import List, Dict, Any, Tuple, Optional
 from dao import student_info as dao
 from schemas.student_info import StudentCreate, StudentResponse, StudentUpdate
@@ -7,7 +8,10 @@ from schemas.student_info import StudentCreate, StudentResponse, StudentUpdate
 
 def create_student(db: Session, s: StudentCreate):
     """创建新的学生信息记录"""
-    return dao.create_student(db, s)
+    try:
+        return dao.create_student(db, s)
+    except IntegrityError:
+        raise HTTPException(status_code=400, detail="创建学生失败，可能学号已存在")
 
 def get_student_by_id(db: Session, id: int):
     """根据ID查询学生信息，不存在则抛出404异常"""

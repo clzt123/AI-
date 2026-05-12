@@ -136,7 +136,7 @@ async function deleteStudent(id) {
 
 async function restoreStudent(id) {
     try {
-        await apiRequest(`/students/restore/${id}`, 'PUT');
+        await apiRequest(`/students/restore/${id}`, 'POST');
         showToast('恢复成功', 'success');
         loadDeletedStudents();
     } catch (e) {

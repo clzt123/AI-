@@ -1,5 +1,6 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 from typing import List, Dict, Any, Tuple, Optional
 from dao.teacher import (
     create_teacher, update_teacher, delete_teacher,
@@ -7,7 +8,14 @@ from dao.teacher import (
     get_deleted_teachers, restore_teacher, get_teacher_stats,
     check_teacher_exists, check_teacher_deleted, check_teacher_exists_any
 )
-from schemas.teacher import TeacherUpdate, TeacherResponse
+from schemas.teacher import TeacherCreate, TeacherUpdate, TeacherResponse
+
+def create_teacher_service(db: Session, data: TeacherCreate):
+    """创建新的老师信息记录"""
+    try:
+        return create_teacher(db, data)
+    except IntegrityError:
+        raise HTTPException(status_code=400, detail="创建老师失败，可能工号已存在")
 
 def get_all_teachers_list(db: Session) -> List[Dict[str, Any]]:
     """获取所有老师信息列表并序列化"""
@@ -31,8 +39,6 @@ def get_teachers_list(db: Session, teacher_name=None, gender=None, page=1, page_
 def get_deleted_teachers_list(db: Session, page=1, page_size=10) -> Tuple[int, List[Dict[str, Any]]]:
     """查询已删除的老师列表，支持分页"""
     total, data = get_deleted_teachers(db, page, page_size)
-    if total == 0:
-        raise HTTPException(status_code=404, detail="未找到已删除的老师")
     serialized_data = [TeacherResponse.model_validate(item).model_dump() for item in data] if data else []
     return total, serialized_data
 

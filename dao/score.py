@@ -70,11 +70,11 @@ def get_deleted_scores_dao(db: Session, id: int = None, student_no: str = None, 
     query = db.query(Score).filter(Score.is_deleted == 1)
 
     if id is not None:
-        query = query.filter(Score.id.like(f"%{id}%"))
+        query = query.filter(Score.id == id)
     if student_no:
         query = query.filter(Score.student_no.like(f"%{student_no}%"))
     if exam_order is not None:
-        query = query.filter(Score.exam_order.like(f"%{exam_order}%"))
+        query = query.filter(Score.exam_order == exam_order)
 
     return query.all()
 

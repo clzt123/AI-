@@ -78,6 +78,11 @@ def get_current_auth_user(authorization: str = Header(...)) -> AuthUser:
         raise HTTPException(status_code=401, detail="令牌验证失败")
 
 
+def require_login(auth_user: AuthUser = Depends(get_current_auth_user)) -> AuthUser:
+    """仅验证用户是否已登录，不检查具体权限"""
+    return auth_user
+
+
 def require_permission(module: str, action: str):
     module_names = {
         "student_info": "学生管理",

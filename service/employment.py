@@ -1,5 +1,6 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 from typing import List, Dict, Any, Optional
 from dao.employment import (
     get_all_employment,
@@ -17,7 +18,7 @@ from dao.employment import (
 from schemas.employment import EmploymentResponse, EmploymentCreate, EmploymentUpdate
 
 
-def get_all_service(db: Session, page: int, page_size: int, student_name: str, company_name: str, class_id: int) -> Dict[str, Any]:
+def get_all_service(db: Session, page: int, page_size: int, student_name: Optional[str], company_name: Optional[str], class_id: Optional[int]) -> Dict[str, Any]:
     """获取所有就业信息列表，支持分页和多条件筛选"""
     skip = (page - 1) * page_size
     emp_list = get_all_employment(db, skip, page_size, student_name, company_name, class_id)
@@ -72,7 +73,10 @@ def create_employment_service(db: Session, data: EmploymentCreate):
     exist = get_student_no_by(db, data.student_no)
     if exist:
         raise HTTPException(status_code=409, detail="就业信息已存在")
-    return create_employment(db, data)
+    try:
+        return create_employment(db, data)
+    except IntegrityError:
+        raise HTTPException(status_code=400, detail="创建就业信息失败")
 
 
 def update_employment_service(db: Session, employment_id: int, data: EmploymentUpdate):

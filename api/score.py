@@ -11,11 +11,11 @@ from schemas.score import (
     StudentFailResponse, ClassAvgScoreResponse
 )
 from database import get_db
-from service.auth import require_permission, AuthUser
+from service.auth import require_permission, require_login, AuthUser
 
 router = APIRouter(prefix="/scores", tags=["学生成绩"])
 
-@router.post('', response_model=dict, summary="添加成绩")
+@router.post('/create', response_model=dict, summary="添加成绩")
 def add_score(score: ScoreCreate, db: Session = Depends(get_db), _: AuthUser = Depends(require_permission("score", "create"))) -> Dict[str, Any]:
     """添加新的成绩记录"""
     result = add_score_service(db, score)
@@ -28,7 +28,8 @@ def get_scores(
     exam_order: int | None = Query(None, description="考试序号", ge=1),
     page: int = Query(1, description="页码", ge=1),
     page_size: int = Query(10, description="每页条数", ge=1, le=50),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    _: AuthUser = Depends(require_login)
 ) -> ScorePageResponse:
     """分页查询成绩信息，支持按学号、考试序号筛选"""
     result = get_scores_service(db, id, student_no, exam_order, page, page_size)
@@ -69,19 +70,19 @@ def restore_score(
     return {"code": 200, "message": f"恢复成功，共恢复 {count} 条", "data": {"count": count}}
 
 @router.get("/all-above-80", summary="查询80分以上学生")
-def all_above_80(db: Session = Depends(get_db)) -> Dict[str, Any]:
+def all_above_80(db: Session = Depends(get_db), _: AuthUser = Depends(require_login)) -> Dict[str, Any]:
     """查询所有科目成绩都在80分以上的优秀学生"""
     data = get_all_above_80_service(db)
     return {"code": 200, "message": "查询成功", "data": data}
 
 @router.get("/multiple-fail", response_model=StudentFailResponse, summary="查询不及格超过2次的学生")
-def multiple_fail(db: Session = Depends(get_db)) -> Dict[str, Any]:
+def multiple_fail(db: Session = Depends(get_db), _: AuthUser = Depends(require_login)) -> Dict[str, Any]:
     """查询不及格次数超过2次的学生及其不及格记录"""
     data = get_multiple_fail_service(db)
     return {"code": 200, "message": "查询成功", "data": data}
 
 @router.get("/class-avg", response_model=ClassAvgScoreResponse, summary="查询各班级各次考试平均分统计")
-def class_avg(db: Session = Depends(get_db)) -> Dict[str, Any]:
+def class_avg(db: Session = Depends(get_db), _: AuthUser = Depends(require_login)) -> Dict[str, Any]:
     """统计各班级每次考试的平均分"""
     data = get_class_avg_service(db)
     return {"code": 200, "message": "查询成功", "data": data}

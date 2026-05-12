@@ -1,9 +1,11 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 from typing import List, Dict, Any, Optional
 
 from dao.class_info import get_all_classes, get_one_class, create_class, update_class, delete_class, \
     restore_class, count_class_month, get_class_by_lecturer_id, check_class_exists, check_class_name_exists
+from schemas.class_info import ClassCreate, ClassUpdate
 
 
 def get_all_classinfo_service(db:Session) -> List:
@@ -18,7 +20,7 @@ def get_one_classinfo_service(db:Session,class_id:int):
         raise HTTPException(status_code=404,detail="班级不存在")
     return class_info
 
-def create_class_service(db: Session, cls_data):
+def create_class_service(db: Session, cls_data: ClassCreate):
     """创建新的班级信息记录，检查名称是否为空和是否重复"""
     if not cls_data.class_name:
         raise HTTPException(status_code=400, detail="班级名称不能为空")
@@ -26,9 +28,12 @@ def create_class_service(db: Session, cls_data):
     if check_class_name_exists(db, cls_data.class_name):
         raise HTTPException(status_code=400,detail="班级名称已存在，不能重复添加" )
 
-    return create_class(db, cls_data)
+    try:
+        return create_class(db, cls_data)
+    except IntegrityError:
+        raise HTTPException(status_code=400, detail="创建班级失败")
 
-def update_class_service(db: Session, class_id: int, update_data):
+def update_class_service(db: Session, class_id: int, update_data: ClassUpdate):
     """更新指定班级的信息，不存在则抛出404异常"""
     if not check_class_exists(db, class_id):
         raise HTTPException(status_code=404, detail="班级不存在")
@@ -56,7 +61,5 @@ def count_class_month_service(db: Session, month: str = None) -> List[Dict[str, 
     return data if data else []
 
 def get_class_by_lecturer_id_service(db: Session,lecturer_id: int) -> List[str]:
-    """根据讲师ID查询其负责的班级列表，无数据则抛出404异常"""
-    if not get_class_by_lecturer_id(db, lecturer_id):
-        raise HTTPException(status_code=404, detail="暂无班级数据")
-    return get_class_by_lecturer_id(db,lecturer_id)
+    """根据讲师ID查询其负责的班级列表，无数据则返回空列表"""
+    return get_class_by_lecturer_id(db, lecturer_id)

@@ -69,7 +69,7 @@ async function saveClass() {
             await apiRequest(`/classes/update/${id}`, 'PUT', data);
             showToast('修改成功', 'success');
         } else {
-            await apiRequest('/classes/add', 'POST', data);
+            await apiRequest('/classes/create', 'POST', data);
             showToast('新增成功', 'success');
         }
         closeModal('class_modal');
@@ -97,7 +97,7 @@ async function restoreClassById() {
         return;
     }
     try {
-        await apiRequest(`/classes/restore/${classId}`, 'PUT');
+        await apiRequest(`/classes/restore/${classId}`, 'POST');
         showToast('恢复成功', 'success');
         closeModal('restore_modal');
         document.getElementById('restore_class_id').value = '';

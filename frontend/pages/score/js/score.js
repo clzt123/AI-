@@ -94,7 +94,7 @@ async function saveScore() {
             await apiRequest(`/scores/${id}`, 'PUT', { score: data.score });
             showToast('修改成功', 'success');
         } else {
-            await apiRequest('/scores', 'POST', data);
+            await apiRequest('/scores/create', 'POST', data);
             showToast('新增成功', 'success');
         }
         closeModal('score_modal');

@@ -9,6 +9,7 @@ from api import class_router, employment_router, score_router, student_info_rout
 import os
 import logging
 from fastapi.middleware.cors import CORSMiddleware
+from config import APP_HOST, APP_PORT
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -16,12 +17,14 @@ logger = logging.getLogger(__name__)
 Base.metadata.create_all(bind=engine)
 app = FastAPI(title="学生管理系统",version="2.0")
 
+ALLOWED_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:8000,http://127.0.0.1:8000").split(",")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type"],
 )
 
 @app.exception_handler(StarletteHTTPException)
@@ -38,10 +41,10 @@ async def http_exception_handler(request, exc):
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request, exc):
     return JSONResponse(
-        status_code=403,
+        status_code=422,
         content={
-            "code": 403,
-            "message": "权限不足",
+            "code": 422,
+            "message": "请求参数校验失败",
             "data": None
         }
     )

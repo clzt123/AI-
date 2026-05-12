@@ -1,6 +1,6 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from dao.score import (
     add_score_dao,
     check_score_exists,
@@ -21,7 +21,10 @@ def add_score_service(db, score: ScoreCreate):
             status_code=409,
             detail="该学生此考试成绩已存在，不可重复添加"
         )
-    return add_score_dao(db, score)
+    try:
+        return add_score_dao(db, score)
+    except IntegrityError:
+        raise HTTPException(status_code=400, detail="添加成绩失败")
 
 def format_score_list(score_list):
     return [

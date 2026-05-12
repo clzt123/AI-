@@ -29,12 +29,10 @@ def create_student(db: Session, s: StudentCreate) -> Student:
         db.rollback()
         raise
 
-# 查询按 id（主键）
 def get_student(db: Session, id: int) -> Optional[Student]:
     """根据ID查询学生信息"""
     return db.query(Student).filter(Student.id == id,Student.is_deleted == 0).first()
 
-# 条件查询
 def get_students(db: Session, student_name=None, class_id=None, page=1, page_size=10) -> Tuple[int, List[Student]]:
     """根据条件查询学生信息并分页"""
     q = db.query(Student)
@@ -47,7 +45,6 @@ def get_students(db: Session, student_name=None, class_id=None, page=1, page_siz
     data = q.offset((page-1)*page_size).limit(page_size).all()
     return total, data
 
-# 更新按 id
 def update_student(db: Session, id: int, data: StudentUpdate) -> Optional[Student]:
     """更新指定学生的信息"""
     try:
@@ -63,7 +60,6 @@ def update_student(db: Session, id: int, data: StudentUpdate) -> Optional[Studen
         db.rollback()
         raise
 
-# 删除按 id
 def delete_student(db: Session, id: int) -> bool:
     """逻辑删除指定学生信息"""
     try:
@@ -77,7 +73,6 @@ def delete_student(db: Session, id: int) -> bool:
         db.rollback()
         raise
 
-#恢复学生数据
 def restore_student(db: Session, id: int) -> bool:
     """恢复已删除的学生信息"""
     try:
@@ -91,7 +86,6 @@ def restore_student(db: Session, id: int) -> bool:
         db.rollback()
         raise
 
-#查询已删除学生的数据
 def get_deleted_student(db: Session, student_name=None,page=1, page_size=10) -> Tuple[int, List[Student]]:
     """查询已删除的学生信息并分页"""
     q = db.query(Student).filter(Student.is_deleted == 1)
@@ -101,13 +95,11 @@ def get_deleted_student(db: Session, student_name=None,page=1, page_size=10) -> 
     data = q.offset((page-1)*page_size).limit(page_size).all()
     return total, data
 
-# 查询所有超过30岁的学员信息
 def check_student_age(db: Session) -> List[Student]:
     """查询所有年龄超过30岁的学生信息"""
     stu_age = db.query(Student).filter(Student.is_deleted == 0,Student.age > 30).all()
     return stu_age
 
-#统计每个班级的人数以及男生女生人数
 def check_student_gender(db: Session) -> List[dict]:
     """统计每个班级的总人数及男女生人数"""
     stu = (db.query(

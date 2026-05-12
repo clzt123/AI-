@@ -109,7 +109,7 @@ async function deleteTeacher(id) {
 
 async function restoreTeacher(id) {
     try {
-        await apiRequest(`/teachers/restore/${id}`, 'PUT');
+        await apiRequest(`/teachers/restore/${id}`, 'POST');
         showToast('恢复成功', 'success');
         loadDeletedTeachers();
     } catch (e) {

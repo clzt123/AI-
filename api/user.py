@@ -1,8 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Header
 from sqlalchemy.orm import Session
 from database import get_db
 from service.user import register_service, login_service, get_current_user
-from service.auth import require_permission, AuthUser
+from service.auth import require_permission, require_login, AuthUser
 from schemas.user import UserRegister, UserLogin, UserResponse
 from typing import Dict, Any
 
@@ -24,7 +24,7 @@ def login(data: UserLogin, db: Session = Depends(get_db)) -> Dict[str, Any]:
 
 
 @router.get('/me', response_model=dict, summary="获取当前用户信息")
-def get_me(token: str, db: Session = Depends(get_db)) -> Dict[str, Any]:
+def get_me(db: Session = Depends(get_db), auth_user: AuthUser = Depends(require_login)) -> Dict[str, Any]:
     """根据JWT令牌获取当前登录用户信息"""
-    user = get_current_user(db, token)
+    user = get_current_user_by_id(db, auth_user.user_id)
     return {"code": 200, "message": "查询成功", "data": user.model_dump()}

@@ -76,3 +76,11 @@ def get_current_user(db: Session, token: str) -> UserResponse:
     if not user:
         raise HTTPException(status_code=404, detail="用户不存在")
     return UserResponse.model_validate(user)
+
+
+def get_current_user_by_id(db: Session, user_id: int) -> UserResponse:
+    """根据用户ID获取用户信息"""
+    user = get_user_by_id(db, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="用户不存在")
+    return UserResponse.model_validate(user)

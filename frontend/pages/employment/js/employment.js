@@ -102,7 +102,7 @@ async function saveEmployment() {
             await apiRequest(`/employments/${id}`, 'PUT', data);
             showToast('修改成功', 'success');
         } else {
-            await apiRequest('/employments/', 'POST', data);
+            await apiRequest('/employments/create', 'POST', data);
             showToast('新增成功', 'success');
         }
         closeModal('employment_modal');
@@ -130,7 +130,7 @@ async function restoreEmploymentById() {
         return;
     }
     try {
-        await apiRequest(`/employments/restore/${employmentId}`, 'PUT');
+        await apiRequest(`/employments/restore/${employmentId}`, 'POST');
         showToast('恢复成功', 'success');
         closeModal('restore_modal');
         document.getElementById('restore_employment_id').value = '';

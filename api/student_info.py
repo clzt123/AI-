@@ -14,7 +14,7 @@ from service.student_info import (
     restore_student_service,
     get_deleted_student_list
 )
-from service.auth import require_permission, AuthUser
+from service.auth import require_permission, require_login, AuthUser
 
 router = APIRouter(prefix="/students", tags=["学生管理"])
 
@@ -29,14 +29,15 @@ def list_students(
     student_name: Optional[str] = None,
     class_id: Optional[int] = None,
     page: int=1, page_size:int=10,
-    db: Session=Depends(get_db)
+    db: Session=Depends(get_db),
+    _: AuthUser = Depends(require_login)
 ) -> Dict[str, Any]:
     """分页查询学生信息，支持按姓名和班级筛选"""
     total, data = get_students_list(db, student_name, class_id, page, page_size)
     return {"code": 200, "message": "查询成功", "total":total, "data":data, "page":page, "page_size":page_size}
 
 @router.get("/age_stats", response_model=dict)
-def get_age_stats(db: Session = Depends(get_db)) -> Dict[str, Any]:
+def get_age_stats(db: Session = Depends(get_db), _: AuthUser = Depends(require_login)) -> Dict[str, Any]:
     """查询年龄超过30岁的学生信息"""
     data = check_student_age(db)
     result = []
@@ -52,13 +53,13 @@ def get_age_stats(db: Session = Depends(get_db)) -> Dict[str, Any]:
     return {"code": 200, "message": "查询成功", "data": result}
 
 @router.get("/gender_stats", response_model=dict)
-def get_gender_stats(db: Session = Depends(get_db)) -> Dict[str, Any]:
+def get_gender_stats(db: Session = Depends(get_db), _: AuthUser = Depends(require_login)) -> Dict[str, Any]:
     """统计每个班级的男女生人数"""
     data = check_student_gender(db)
     return {"code": 200, "message": "查询成功", "data": data}
 
 @router.get("/check/{id}", response_model=dict)
-def get_student_by_id_route(id: int, db: Session=Depends(get_db)) -> Dict[str, Any]:
+def get_student_by_id_route(id: int, db: Session=Depends(get_db), _: AuthUser = Depends(require_login)) -> Dict[str, Any]:
     """根据ID查询单个学生信息"""
     result = get_student_by_id(db, id)
     return {"code": 200, "message": "查询成功", "data": StudentResponse.model_validate(result).model_dump()}
@@ -86,7 +87,8 @@ def check_is_deleted(
     student_name: Optional[str] = None,
     page: int = 1,
     page_size: int = 10,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    _: AuthUser = Depends(require_login)
 ) -> Dict[str, Any]:
     """查询已删除的学生列表，支持分页和姓名筛选"""
     total, data = get_deleted_student_list(

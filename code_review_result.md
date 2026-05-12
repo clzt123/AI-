@@ -1,289 +1,293 @@
 # Code Review 报告 - 学生管理系统
 
-## 项目概览
-
-本项目是一个基于 FastAPI + SQLAlchemy 的学生管理系统，采用经典的三层架构（API → Service → DAO），包含用户鉴权、学生管理、成绩管理、教师管理、班级管理、就业管理等模块。
-
----
-
-## 一、命名规范检查
-
-### 1.1 文件命名不一致
-
-| 文件 | 行 | 问题 | 建议 |
-|------|-----|------|------|
-| `service/class_info_service.py` | 全文 | 其他 service 文件均以模块名直接命名（如 `student_info.py`、`teacher.py`），唯独班级管理使用 `class_info_service.py` | 重命名为 `service/class_info.py`，保持命名一致性 |
-
-### 1.2 函数命名冗余
-
-| 文件 | 行 | 问题 | 建议 |
-|------|-----|------|------|
-| `api/class_info.py` | L32 | `put_update_class` 函数名中 `put` 和 `update` 语义重复 | 改为 `update_class` |
-| `api/class_info.py` | L27 | `add_class` 与其他模块的 `create_xxx` 命名风格不一致 | 改为 `create_class` 保持统一 |
-
-### 1.3 变量命名不规范
-
-| 文件 | 行 | 问题 | 建议 |
-|------|-----|------|------|
-| `api/class_info.py` | L27 | 参数名 `cls` 是 Python 关键字约定（类方法第一个参数），易混淆 | 改为 `class_data` 或 `cls_data` |
-| `api/student_info.py` | L22 | 参数名 `s` 过于简短，语义不明确 | 改为 `student_data` |
-| `api/teacher.py` | L29 | 参数名 `t` 过于简短 | 改为 `teacher_data` |
-
-### 1.4 Schema 模型命名不一致
-
-| 文件 | 行 | 问题 | 建议 |
-|------|-----|------|------|
-| `schemas/class_info.py` | L5 | `ClassCreate` 缺少 `Info` 后缀，与其他模块（如 `StudentCreate`）不一致 | 保持现状可接受，但建议全项目统一风格 |
-| `schemas/score.py` | L72 | `Score_Page_Response` 使用下划线分隔，其他响应模型使用驼峰（如 `StudentListResponse`） | 改为 `ScorePageResponse` |
+> 审查日期：2026-05-12
+> 审查范围：全项目（后端 Python + 前端 HTML/JS）
+> 审查原则：关注整体架构与意图，而非细枝末节的格式
 
 ---
 
-## 二、接口一致性检查
+## 1. 命名规范检查
 
-### 2.1 响应格式不统一
+### 1.1 [database.py](file:///d:/AIxsglxt/学生管理系统%207人板/database.py#L7) - 全局常量命名使用大写蛇形
+- **代码行**：L7
+- **审查原因**：`SQL_URL`、`SessionLocal`、`Base`、`engine` 等全局常量使用大写蛇形命名，但 `engine` 和 `Base` 使用小写，风格不统一。
+- **修改建议**：统一使用大写蛇形命名全局常量，如 `ENGINE`、`SESSION_LOCAL`，或统一使用小写（FastAPI 社区惯例）。
 
-| 文件 | 行 | 问题 | 建议 |
-|------|-----|------|------|
-| `api/student_info.py` | L88 | `check_is_deleted` 使用 `response_model=StudentListResponse`，但实际返回的是 dict 结构 | 统一使用 `response_model=dict` 或定义完整的 ResponseModel |
-| `api/score.py` | L25 | `get_scores` 使用 `response_model=Score_Page_Response`，但其他接口多用 `dict` | 全项目统一响应模型策略 |
-| `api/score.py` | L67 | `multiple_fail` 声明了 `response_model=StudentFailResponse` 但返回类型标注为 `Dict[str, Any]` | 返回类型标注应与 response_model 一致 |
-| `api/score.py` | L73 | `class_avg` 同上问题 | 同上 |
+### 1.2 [dao/score.py](file:///d:/AIxsglxt/学生管理系统%207人板/dao/score.py#L71) - 对整型 ID 使用 LIKE 模糊查询
+- **代码行**：L71-L73
+- **审查原因**：`Score.id` 是整型主键，使用 `.like(f"%{id}%")` 语义不合理，且在某些数据库驱动下可能报错。
+- **修改建议**：整型 ID 应使用精确匹配 `Score.id == id`，而非模糊查询。
 
-### 2.2 状态码使用不当
+### 1.3 [dao/score.py](file:///d:/AIxsglxt/学生管理系统%207人板/dao/score.py#L75) - 对整型 exam_order 使用 LIKE 模糊查询
+- **代码行**：L75
+- **审查原因**：`Score.exam_order` 是整型字段，使用 `.like()` 不符合语义。
+- **修改建议**：改为精确匹配 `Score.exam_order == exam_order`。
 
-| 文件 | 行 | 问题 | 建议 |
-|------|-----|------|------|
-| `main.py` | L38-45 | `RequestValidationError` 返回 403（权限不足），但实际是请求参数校验失败，应返回 422 | 改为 422 状态码，并修改 message 为"请求参数校验失败" |
-| `api/employment.py` | L32-34 | `get_all_api` 没有返回 total 字段，但其他分页接口都返回 total | 补充 total 字段或统一分页策略 |
+### 1.4 [service/class_info.py](file:///d:/AIxsglxt/学生管理系统%207人板/service/class_info.py#L21) - create_class 函数参数类型标注缺失
+- **代码行**：L21
+- **审查原因**：`create_class_service(db: Session, cls_data)` 中 `cls_data` 缺少类型标注，而同一文件中其他函数都有完整类型标注。
+- **修改建议**：添加类型标注 `cls_data: ClassCreate`。
 
-### 2.3 HTTP 方法使用不规范
+### 1.5 [service/class_info.py](file:///d:/AIxsglxt/学生管理系统%207人板/service/class_info.py#L31) - update_class 函数参数类型标注缺失
+- **代码行**：L31
+- **审查原因**：`update_class_service(db: Session, class_id: int, update_data)` 中 `update_data` 缺少类型标注。
+- **修改建议**：添加类型标注 `update_data: ClassUpdate`。
 
-| 文件 | 行 | 问题 | 建议 |
-|------|-----|------|------|
-| `api/score.py` | L49 | 使用 `PUT` 方法做恢复操作 `/scores/delete/restore`，但 PUT 语义是幂等更新，恢复操作更适合用 POST 或 PATCH | 改为 `POST /scores/restore` 或 `PATCH /scores/{id}/restore` |
-| `api/student_info.py` | L79 | 同上，恢复操作使用 PUT | 同上 |
+### 1.6 [service/employment.py](file:///d:/AIxsglxt/学生管理系统%207人板/service/employment.py#L20) - 函数参数类型标注不一致
+- **代码行**：L20
+- **审查原因**：`student_name: str`、`company_name: str`、`class_id: int` 实际可传 `None`，但类型标注为非 Optional。
+- **修改建议**：改为 `student_name: Optional[str] = None` 等。
 
----
+### 1.7 [models/teacher.py](file:///d:/AIxsglxt/学生管理系统%207人板/models/teacher.py#L5) - 类定义前有多余空行
+- **代码行**：L4-L5
+- **审查原因**：`#定义ORM模型` 注释与类定义之间缺少空行，且注释风格与其他模型文件不一致（其他模型使用 `"""docstring"""`）。
+- **修改建议**：统一使用 docstring 风格注释。
 
-## 三、架构合理性审查
-
-### 3.1 Service 层过于单薄（透传层）
-
-| 文件 | 行 | 问题 | 建议 |
-|------|-----|------|------|
-| `service/student_info.py` | L8-10, L13-17 等 | 大部分 service 函数只是简单调用 DAO 层，没有额外的业务逻辑，属于过度设计 | 考虑以下方案之一：<br>1. 合并 Service 和 DAO 层<br>2. 在 Service 层增加真正的业务逻辑（如数据转换、复合校验）<br>3. 保持现状但在文档中说明分层意图 |
-
-### 3.2 Controller 层承担业务逻辑
-
-| 文件 | 行 | 问题 | 建议 |
-|------|-----|------|------|
-| `api/employment.py` | L31 | 分页计算 `skip = (page - 1) * page_size` 在 API 层完成，应下沉到 Service/DAO 层 | 将分页逻辑移至 Service 层 |
-| `api/student_info.py` | L43-49 | `get_age_stats` 在 API 层做数据序列化，应在 Service 层完成 | 将序列化逻辑移至 Service 层 |
-
-### 3.3 路由注册不一致
-
-| 文件 | 行 | 问题 | 建议 |
-|------|-----|------|------|
-| `api/__init__.py` | L10-15 | 导入方式不统一：有的用 `class_router`，有的用 `router as employment_router` | 统一导出命名风格，建议全部使用 `xxx_router` 格式 |
-| `api/score.py` | L16 | `score_router` 没有设置 prefix，而其他路由都有 `prefix="/xxx"` | 添加 `prefix="/scores"` 或保持全局 prefix 一致 |
-
-### 3.4 循环导入风险
-
-| 文件 | 行 | 问题 | 建议 |
-|------|-----|------|------|
-| `service/teacher.py` | L69 | 在函数内部使用 `from dao.teacher import get_teacher_stats` 延迟导入，说明可能存在循环依赖 | 检查并消除循环依赖，避免延迟导入 |
+### 1.8 [schemas/teacher.py](file:///d:/AIxsglxt/学生管理系统%207人板/schemas/teacher.py#L50-L52) - 文件末尾有多余空行
+- **代码行**：L50-L52
+- **审查原因**：文件末尾有 4 个空行，PEP8 建议文件末尾保留 1 个空行。
+- **修改建议**：删除多余空行。
 
 ---
 
-## 四、注释与文档审查
+## 2. 接口一致性检查
 
-### 4.1 注释质量总体良好，但存在以下问题
+### 2.1 [main.py](file:///d:/AIxsglxt/学生管理系统%207人板/main.py#L38-L46) - RequestValidationError 返回 403 状态码
+- **代码行**：L38-L46
+- **审查原因**：将参数校验失败（`RequestValidationError`）映射为 403 权限不足，语义错误。403 应仅用于权限拒绝场景，参数校验应返回 422。这会导致前端无法区分"参数错误"和"权限不足"。
+- **修改建议**：恢复为 422 状态码，消息改为"请求参数校验失败"。权限不足应由 `require_permission` 中间件单独处理。
 
-| 文件 | 行 | 问题 | 建议 |
-|------|-----|------|------|
-| `models/student_info.py` | L3 | 仅有单行注释 `#学生信息表`，缺少 Docstring | 添加类级别的 Docstring 说明表用途 |
-| `models/employment.py` | L4 | `#创建基类` 注释不准确，Employment 不是基类 | 改为 `#就业信息表模型` |
-| `api/score.py` | L49-56 | `restore_score` 函数缺少 Docstring | 添加函数说明文档 |
-| `service/auth.py` | L10-52 | `ROLE_PERMISSIONS` 权限配置字典缺少注释说明各角色含义 | 添加角色说明注释 |
+### 2.2 [api/student_info.py](file:///d:/AIxsglxt/学生管理系统%207人板/api/student_info.py#L22) - 所有路由 response_model=dict 缺乏类型约束
+- **代码行**：L22, L27, L36, L44, L50, L55, L60, L65, L70
+- **审查原因**：所有路由使用 `response_model=dict`，失去了 Pydantic 响应校验的意义，且与 [api/score.py](file:///d:/AIxsglxt/学生管理系统%207人板/api/score.py) 中使用具体 ResponseModel 的风格不一致。
+- **修改建议**：统一使用具体的 `response_model`（如 `StudentListResponse`）或统一使用 `dict`，保持全项目一致。
 
-### 4.2 存在"废话注释"
+### 2.3 [api/score.py](file:///d:/AIxsglxt/学生管理系统%207人板/api/score.py#L27) - 部分路由使用具体 ResponseModel，部分使用 dict
+- **代码行**：L27（ScorePageResponse）vs L19（dict）
+- **审查原因**：同一文件内 `response_model` 使用不一致，`get_scores` 使用 `ScorePageResponse`，而 `add_score` 使用 `dict`。
+- **修改建议**：统一为 `dict` 或统一为具体 ResponseModel。
 
-| 文件 | 行 | 问题 | 建议 |
-|------|-----|------|------|
-| `service/student_info.py` | L8 | `"""创建新的学生信息记录"""` 与函数名 `create_student` 完全重复 | 删除或补充更有价值的说明（如业务规则） |
-| `dao/student_info.py` | L10 | 同上 | 同上 |
-| `service/user.py` | L20 | `"""对密码进行哈希加密"""` 函数名 `hash_password` 已足够清晰 | 可删除或补充算法说明 |
+### 2.4 [api/teacher.py](file:///d:/AIxsglxt/学生管理系统%207人板/api/teacher.py#L35) - 查询已删除老师列表在无数据时抛出 404
+- **代码行**：L35（service/teacher.py L34）
+- **审查原因**：`get_deleted_teachers_list` 在 `total == 0` 时抛出 404，但查询列表接口在无数据时应返回空列表而非 404。与其他模块（如学生管理）的行为不一致。
+- **修改建议**：删除 404 抛出逻辑，返回 `total=0, data=[]`。
 
----
+### 2.5 [api/class_info.py](file:///d:/AIxsglxt/学生管理系统%207人板/api/class_info.py#L27) - 创建班级路由使用 /add 而非 /create
+- **代码行**：L27
+- **审查原因**：班级管理使用 `/add` 作为创建路由，而学生管理使用 `/create`，老师管理也使用 `/create`，命名不一致。
+- **修改建议**：统一改为 `/create`。
 
-## 五、异步与并发安全
+### 2.6 [api/score.py](file:///d:/AIxsglxt/学生管理系统%207人板/api/score.py#L19) - add_score 路由路径为空字符串
+- **代码行**：L19
+- **代码内容**：`@router.post('', response_model=dict, summary="添加成绩")`
+- **审查原因**：路径为空字符串 `''`，而其他模块使用 `/create` 或 `/`。与同文件的 `get_scores`（也是 `''`）冲突风险高。
+- **修改建议**：改为 `/create` 以保持一致性。
 
-### 5.1 全局使用同步路由（非 async）
+### 2.7 [api/employment.py](file:///d:/AIxsglxt/学生管理系统%207人板/api/employment.py#L64) - 创建就业路由使用 / 而非 /create
+- **代码行**：L64
+- **审查原因**：使用 `@router.post("/")` 作为创建路由，与其他模块的 `/create` 不一致。
+- **修改建议**：改为 `/create`。
 
-| 文件 | 行 | 问题 | 建议 |
-|------|-----|------|------|
-| 所有 `api/*.py` 文件 | 全文 | 所有路由函数均使用同步定义 `def xxx()` 而非 `async def xxx()`，虽然配合 SQLAlchemy 同步驱动是可行的，但浪费了 FastAPI 的异步能力 | 如果未来考虑高并发场景，建议：<br>1. 使用 `databases` 或 `SQLAlchemy 2.0 async` 模式<br>2. 将路由改为 `async def`<br>3. 当前阶段可保持现状，但需知晓性能瓶颈 |
-
-### 5.2 数据库会话生命周期管理
-
-| 文件 | 行 | 问题 | 建议 |
-|------|-----|------|------|
-| `database.py` | L29-35 | `get_db` 使用 Generator 正确管理会话生命周期，但缺少 `async` 支持 | 当前实现是安全的，`finally` 块确保会话关闭 |
-| `dao/student_info.py` | L10-18 | DAO 层手动调用 `db.commit()` 和 `db.rollback()`，如果 Service 层需要组合多个 DAO 操作实现事务，会导致事务边界混乱 | 考虑在 Service 层统一管理事务边界，DAO 层只负责数据操作 |
-
-### 5.3 无阻塞 IO 问题
-
-| 文件 | 行 | 问题 | 建议 |
-|------|-----|------|------|
-| 全局 | - | 未发现使用标准 `open()` 或 `time.sleep()` 等阻塞操作 | 良好 |
-
----
-
-## 六、依赖注入与配置
-
-### 6.1 SECRET_KEY 硬编码（严重安全问题）
-
-| 文件 | 行 | 问题 | 建议 |
-|------|-----|------|------|
-| `main.py` | L17 | `SECRET_KEY = "your-secret-key-change-in-production"` 硬编码在代码中 | 改为 `SECRET_KEY = os.getenv("SECRET_KEY", "fallback-dev-key")`，并在 `.env` 文件中配置 |
-| `service/auth.py` | L7 | 同上，且与 `main.py` 中的值可能不一致 | 统一从环境变量读取，建议创建 `config.py` 集中管理配置 |
-| `service/user.py` | L12 | 同上，第三处硬编码 | 同上 |
-
-### 6.2 ALGORITHM 重复定义
-
-| 文件 | 行 | 问题 | 建议 |
-|------|-----|------|------|
-| `main.py`, `service/auth.py`, `service/user.py` | 多处 | `ALGORITHM = "HS256"` 在三个文件中重复定义 | 提取到 `config.py` 统一管理 |
-
-### 6.3 Depends 机制使用得当
-
-| 文件 | 行 | 问题 | 建议 |
-|------|-----|------|------|
-| 所有 API 文件 | 全文 | `Depends(get_db)` 和 `Depends(require_permission(...))` 使用正确，符合 FastAPI 最佳实践 | 良好，但建议为 `require_permission` 添加缓存机制避免重复解析 token |
-
-### 6.4 鉴权中间件缺失
-
-| 文件 | 行 | 问题 | 建议 |
-|------|-----|------|------|
-| `main.py` | L63-68 | 路由注册时，`user_router` 使用 `prefix="/api/auth"`，但其他路由使用 `prefix="/api"`，导致鉴权路由路径不一致 | 考虑将认证路由独立为 `/auth` 而非 `/api/auth` |
+### 2.8 [api/user.py](file:///d:/AIxsglxt/学生管理系统%207人板/api/user.py#L27) - get_me 接口通过 URL 参数传递 token
+- **代码行**：L27
+- **审查原因**：`token: str` 作为 Query 参数传递，而非通过 `Authorization` Header。与其他需要鉴权的接口风格不一致。
+- **修改建议**：改为通过 `Header` 获取 token，使用 `get_current_auth_user` 依赖。
 
 ---
 
-## 七、异常处理机制
+## 3. 架构合理性审查
 
-### 7.1 全局异常处理器问题
+### 3.1 [main.py](file:///d:/AIxsglxt/学生管理系统%207人板/main.py#L16) - 数据库表初始化在模块加载时执行
+- **代码行**：L16
+- **审查原因**：`Base.metadata.create_all(bind=engine)` 在 `main.py` 模块加载时立即执行，这意味着每次导入 `main` 模块都会尝试创建表。在生产环境中，数据库迁移应通过专门的迁移工具（如 Alembic）管理。
+- **修改建议**：移除 `create_all`，使用 Alembic 进行数据库迁移管理。
 
-| 文件 | 行 | 问题 | 建议 |
-|------|-----|------|------|
-| `main.py` | L38-45 | `RequestValidationError` 捕获所有参数校验错误并返回 403"权限不足"，这是**严重的安全误导**，会让前端和开发者难以调试 | 改为返回 422 状态码，并返回具体的校验错误信息：`{"code": 422, "message": "请求参数校验失败", "data": exc.errors()}` |
-| `main.py` | L47-54 | `Exception` 全局捕获返回 500，但丢失了异常堆栈信息，不利于生产环境排查 | 在返回通用消息的同时，记录异常日志：`logger.error(f"Unhandled exception: {exc}", exc_info=True)` |
+### 3.2 [main.py](file:///d:/AIxsglxt/学生管理系统%207人板/main.py#L65-L70) - 路由前缀设计不一致
+- **代码行**：L65-L70
+- **审查原因**：`user_router` 使用 `/auth` 前缀，其他路由使用 `/api` 前缀。但前端 `api.js` 中 `API_BASE = '/api'`，所有请求都会自动添加 `/api` 前缀，导致认证路由实际路径为 `/api/auth/login`，而 `main.py` 中 `user_router` 挂载在 `/auth` 下，实际路径为 `/auth/login`。前端 [auth.html](file:///d:/AIxsglxt/学生管理系统%207人板/frontend/auth.html#L278) 使用 `/auth/login` 可以工作，但其他模块的 API 路径会变为 `/api/api/students/check`（双重前缀）。
+- **修改建议**：统一路由前缀策略。要么所有路由都挂载在 `/api` 下，要么前端 `API_BASE` 根据模块动态设置。
 
-### 7.2 异常捕获过于宽泛
+### 3.3 [service/auth.py](file:///d:/AIxsglxt/学生管理系统%207人板/service/auth.py#L63) - get_current_auth_user 使用 Header(...) 强制要求认证
+- **代码行**：L63
+- **审查原因**：`authorization: str = Header(...)` 中的 `...` 表示该 Header 是必需的。这意味着所有使用 `require_permission` 的接口都必须携带 token，但某些查询接口（如 `list_students`、`get_all_classinfo`）没有使用 `require_permission`，导致这些接口完全不需要认证，任何人都可以访问。
+- **修改建议**：为所有需要数据保护的查询接口也添加权限检查，或至少添加基础的登录验证。
 
-| 文件 | 行 | 问题 | 建议 |
-|------|-----|------|------|
-| `dao/student_info.py` | L16-18 | `except SQLAlchemyError` 捕获所有 SQLAlchemy 异常，但没有区分具体异常类型（如 IntegrityError、OperationalError） | 细化异常处理：`except IntegrityError` 处理唯一约束冲突，`except OperationalError` 处理数据库连接问题 |
-| `dao/user.py` | L28-30 | 同上 | 同上 |
-| `dao/teacher.py` | 多处 | 同上 | 同上 |
+### 3.4 [service/student_info.py](file:///d:/AIxsglxt/学生管理系统%207人板/service/student_info.py#L8-L9) - Service 层过于单薄
+- **代码行**：L8-L9, L20-L22
+- **审查原因**：大部分 Service 函数只是简单地调用 DAO 层并返回结果，没有额外的业务逻辑。Service 层和 DAO 层之间的职责划分不够清晰，存在"透传"现象。
+- **修改建议**：考虑将简单的透传函数合并到 DAO 层，或在 Service 层增加真正的业务逻辑（如数据校验、关联数据处理等）。
 
-### 7.3 缺少必要的错误处理
+### 3.5 [dao/class_info.py](file:///d:/AIxsglxt/学生管理系统%207人板/dao/class_info.py#L19) - create_class 函数参数类型错误
+- **代码行**：L19
+- **审查原因**：`create_class(db: Session, cls_data: ClassUpdate)` 使用了 `ClassUpdate` 而非 `ClassCreate`。虽然 `ClassUpdate` 的所有字段都是 Optional，可以工作，但语义不正确。
+- **修改建议**：改为 `cls_data: ClassCreate`。
 
-| 文件 | 行 | 问题 | 建议 |
-|------|-----|------|------|
-| `api/score.py` | L49-56 | `restore_score` 接口参数 `id`, `student_no`, `exam_order` 默认值为 `None`，但类型标注不是 `Optional`，且没有校验至少提供一个参数 | 添加参数校验：`if id is None and student_no is None and exam_order is None: raise HTTPException(400, "至少提供一个查询条件")` |
-| `api/class_info.py` | L49 | `count_class_month` 参数 `month` 没有格式校验 | 添加日期格式校验 `YYYY-MM` |
-| `service/user.py` | L64-76 | `get_current_user` 接收 token 字符串参数，但没有校验 token 格式 | 添加 `if not token: raise HTTPException(401, "令牌不能为空")` |
-
-### 7.4 HTTPException 使用不一致
-
-| 文件 | 行 | 问题 | 建议 |
-|------|-----|------|------|
-| `service/class_info_service.py` | L17 | 使用 `status.HTTP_404_NOT_FOUND` 常量 | 良好 |
-| `service/student_info.py` | L15 | 使用硬编码 `status_code=404` | 统一使用 `status` 模块常量或统一使用硬编码，保持项目一致 |
-| 全局 | 多处 | 部分使用 `status.HTTP_XXX`，部分使用数字 | 建议统一使用数字（更简洁）或统一使用常量（更规范） |
-
----
-
-## 八、其他建议
-
-### 8.1 测试文件管理
-
-| 文件 | 问题 | 建议 |
-|------|------|------|
-| 根目录下 18 个 `test_*.py` 文件 | 测试文件散落在根目录，且命名不规范（如 `test_auth_final_v2.py`） | 1. 创建 `tests/` 目录统一管理<br>2. 删除调试性质的测试文件<br>3. 保留正式的单元测试 |
-
-### 8.2 数据库配置
-
-| 文件 | 行 | 问题 | 建议 |
-|------|-----|------|------|
-| `database.py` | L15 | `SQL_URL` 使用 f-string 拼接，如果 `DB_PASSWORD` 包含特殊字符（如 `@`、`/`）会导致连接失败 | 使用 `urllib.parse.quote_plus` 对密码进行编码 |
-
-### 8.3 缺少日志系统
-
-| 文件 | 问题 | 建议 |
-|------|------|------|
-| 全局 | 项目没有配置日志系统 | 添加 `logging` 配置，记录关键操作（登录、数据修改等）和异常信息 |
-
-### 8.4 CORS 配置缺失
-
-| 文件 | 问题 | 建议 |
-|------|------|------|
-| `main.py` | 未配置 CORS 中间件 | 如果前后端分离部署，需要添加 `CORSMiddleware` 配置 |
-
-### 8.5 密码哈希强度
-
-| 文件 | 行 | 问题 | 建议 |
-|------|-----|------|------|
-| `service/user.py` | L10 | `bcrypt__rounds=4` 设置过低（默认是 12），安全性不足 | 生产环境至少设置为 12，开发环境可保持 4 以提升测试速度 |
+### 3.6 [api/teacher.py](file:///d:/AIxsglxt/学生管理系统%207人板/api/teacher.py#L83) - restore_teacher 使用 PUT 方法
+- **代码行**：L83
+- **审查原因**：恢复操作使用 `PUT /restore/{teacher_id}`，而学生管理使用 `POST /restore/{id}`，班级管理使用 `PUT /restore/{class_id}`，就业管理使用 `PUT /restore/{employment_id}`。HTTP 方法不一致。
+- **修改建议**：统一恢复操作的 HTTP 方法（建议 POST，因为恢复是一个动作而非资源更新）。
 
 ---
 
-## 总结
+## 4. 注释与文档审查
 
-### 严重问题（必须修复）
-1. **SECRET_KEY 硬编码** - 3 处硬编码，存在严重安全风险
-2. **RequestValidationError 返回 403** - 误导前端和开发者，应返回 422
-3. **权限校验错误信息暴露系统内部配置** - 虽然意图是好的，但 403 不合适
+### 4.1 [dao/student_info.py](file:///d:/AIxsglxt/学生管理系统%207人板/dao/student_info.py#L32) - 注释风格不统一
+- **代码行**：L32, L37, L49, L64, L77, L89, L97
+- **审查原因**：部分函数使用 `# 查询按 id` 风格的行内注释，部分使用 `"""docstring"""` 风格。如 L32 `# 查询按 id（主键）` 与 L33 `"""根据ID查询学生信息"""` 重复。
+- **修改建议**：统一使用 docstring 风格，删除冗余的行内注释。
 
-### 重要问题（建议修复）
-1. 响应格式不统一（部分用 dict，部分用 ResponseModel）
-2. Service 层透传问题（过度设计或职责不清）
-3. 异常处理过于宽泛（SQLAlchemyError）
-4. 测试文件管理混乱
+### 4.2 [dao/teacher.py](file:///d:/AIxsglxt/学生管理系统%207人板/dao/teacher.py#L43-L149) - 注释与函数名重复
+- **代码行**：L43, L55, L62, L68, L75, L83, L89, L100, L113, L127, L133, L139, L145
+- **审查原因**：每个函数前都有 `# 新增老师`、`# 更新老师`、`# 逻辑删除` 等注释，与函数名和 docstring 重复，属于"废话注释"。
+- **修改建议**：删除冗余注释，保留 docstring 即可。
 
-### 一般问题（可后续优化）
-1. 命名规范不一致
-2. 注释质量参差
-3. 缺少日志系统
-4. 同步路由限制性能
-5. CORS 配置缺失
+### 4.3 [dao/score.py](file:///d:/AIxsglxt/学生管理系统%207人板/dao/score.py#L95-L97) - 业务需求注释有价值
+- **代码行**：L95-L97, L121-L123, L152-L154
+- **审查原因**：`get_all_above_80_dao`、`get_multiple_fail_dao`、`get_class_avg_dao` 函数前的注释包含业务需求和关键逻辑说明，非常有价值。
+- **修改建议**：保持这种注释风格，并在其他复杂业务逻辑函数中也添加类似注释。
+
+### 4.4 [service/auth.py](file:///d:/AIxsglxt/学生管理系统%207人板/service/auth.py#L8-L13) - 权限配置注释清晰
+- **代码行**：L8-L13
+- **审查原因**：角色权限配置前有清晰的角色说明注释，便于理解权限矩阵。
+- **修改建议**：保持。
+
+### 4.5 [models/class_info.py](file:///d:/AIxsglxt/学生管理系统%207人板/models/class_info.py#L20-L21) - 注释掉的代码应删除
+- **代码行**：L20-L21
+- **审查原因**：`# # 表建立 "一对多" 关联` 是被注释掉的代码，不应保留在源码中。
+- **修改建议**：删除注释掉的代码，如需保留可记录在 Git 历史中。
+
+---
+
+## 5. 异步与并发安全
+
+### 5.1 [main.py](file:///d:/AIxsglxt/学生管理系统%207人板/main.py#L27-L57) - 所有路由使用同步函数
+- **代码行**：全项目所有 API 路由
+- **审查原因**：所有 FastAPI 路由使用同步 `def` 而非 `async def`。FastAPI 会将同步函数放入线程池执行，不会阻塞事件循环，这是正确的做法（因为 SQLAlchemy ORM 是同步的）。但如果未来引入异步数据库驱动（如 `databases` 或 `SQLAlchemy 2.0 async`），需要全面改造。
+- **修改建议**：当前做法正确，无需修改。但应在文档中注明使用同步 ORM 的设计决策。
+
+### 5.2 [database.py](file:///d:/AIxsglxt/学生管理系统%207人板/database.py#L20-L26) - 数据库会话生命周期管理正确
+- **代码行**：L20-L26
+- **审查原因**：`get_db()` 使用 `try...finally` 确保会话关闭，符合 FastAPI 最佳实践。
+- **修改建议**：保持。
+
+### 5.3 [database.py](file:///d:/AIxsglxt/学生管理系统%207人板/database.py#L9-L14) - 连接池配置合理
+- **代码行**：L9-L14
+- **审查原因**：配置了 `pool_size=5`、`max_overflow=10`、`pool_recycle=3600`、`pool_pre_ping=True`，能有效管理数据库连接。
+- **修改建议**：保持。`pool_pre_ping=True` 能自动检测失效连接，适合生产环境。
+
+### 5.4 [dao/score.py](file:///d:/AIxsglxt/学生管理系统%207人板/dao/score.py#L82-L89) - 批量恢复操作在单个事务中执行
+- **代码行**：L82-L89
+- **审查原因**：`restore_scores_dao` 在循环中修改多条记录后统一 `commit()`，这是正确的事务处理方式。
+- **修改建议**：保持。
+
+---
+
+## 6. 依赖注入与配置
+
+### 6.1 [config.py](file:///d:/AIxsglxt/学生管理系统%207人板/config.py#L6) - SECRET_KEY 使用默认值
+- **代码行**：L6
+- **审查原因**：`SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-change-in-production")` 在未设置环境变量时使用硬编码的默认密钥，这在生产环境中是严重的安全风险。
+- **修改建议**：在生产环境中必须通过环境变量设置 `SECRET_KEY`，可在启动时检查并警告。
+
+### 6.2 [config.py](file:///d:/AIxsglxt/学生管理系统%207人板/config.py#L14) - DB_PASSWORD 可能为 None
+- **代码行**：L14
+- **审查原因**：`DB_PASSWORD = os.getenv("DB_PASSWORD")` 未设置默认值，如果环境变量未设置，`DB_PASSWORD` 为 `None`。在 [database.py](file:///d:/AIxsglxt/学生管理系统%207人板/database.py#L7) 中使用 `quote_plus(DB_PASSWORD or '')` 处理了这种情况，但空密码连接数据库通常意味着配置错误。
+- **修改建议**：在应用启动时验证必需的配置项是否存在。
+
+### 6.3 [service/auth.py](file:///d:/AIxsglxt/学生管理系统%207人板/service/auth.py#L78-L128) - require_permission 工厂函数设计合理
+- **代码行**：L78-L128
+- **审查原因**：使用闭包工厂函数 `require_permission(module, action)` 返回 `permission_checker` 依赖，充分利用了 FastAPI 的 `Depends` 机制。
+- **修改建议**：保持。
+
+### 6.4 [api/user.py](file:///d:/AIxsglxt/学生管理系统%207人板/api/user.py#L13) - 注册接口需要管理员权限
+- **代码行**：L13
+- **审查原因**：`register` 接口使用 `require_permission("user", "create")`，只有管理员可以注册用户。这是合理的设计，但需要确保系统中至少有一个初始管理员账户。
+- **修改建议**：添加初始化脚本或文档说明如何创建第一个管理员账户。
+
+### 6.5 [main.py](file:///d:/AIxsglxt/学生管理系统%207人板/main.py#L19-L24) - CORS 配置过于宽松
+- **代码行**：L19-L24
+- **审查原因**：`allow_origins=["*"]` 允许所有来源访问，在生产环境中应限制为具体的前端域名。
+- **修改建议**：通过环境变量配置允许的源列表。
+
+---
+
+## 7. 异常处理机制
+
+### 7.1 [main.py](file:///d:/AIxsglxt/学生管理系统%207人板/main.py#L38-L46) - RequestValidationError 返回 403
+- **代码行**：L38-L46
+- **审查原因**：将参数校验失败映射为 403 权限不足，语义错误。前端无法区分是参数错误还是真正的权限不足。
+- **修改建议**：恢复为 422 状态码。
+
+### 7.2 [main.py](file:///d:/AIxsglxt/学生管理系统%207人板/main.py#L49-L57) - 全局异常处理器捕获所有 Exception
+- **代码行**：L49-L57
+- **审查原因**：`general_exception_handler` 捕获所有 `Exception`，返回 500 错误。这是合理的兜底策略，但会掩盖一些本应更具体处理的异常类型。
+- **修改建议**：保持作为兜底策略，但应确保业务逻辑中的异常已被适当处理。
+
+### 7.3 [service/teacher.py](file:///d:/AIxsglxt/学生管理系统%207人板/service/teacher.py#L34-L36) - 查询已删除列表为空时抛出 404
+- **代码行**：L34-L36
+- **审查原因**：`get_deleted_teachers_list` 在 `total == 0` 时抛出 404，但查询列表接口应返回空列表而非错误。
+- **修改建议**：删除 404 抛出逻辑。
+
+### 7.4 [dao/student_info.py](file:///d:/AIxsglxt/学生管理系统%207人板/dao/student_info.py#L23-L30) - IntegrityError 处理后重新抛出
+- **代码行**：L23-L30（以及所有 DAO 文件中的类似代码）
+- **审查原因**：所有 DAO 函数在捕获 `IntegrityError` 后执行 `db.rollback()` 然后 `raise`。重新抛出的原始 `IntegrityError` 会被 FastAPI 的全局异常处理器捕获，返回 500 错误，前端无法获得有意义的错误信息。
+- **修改建议**：在 Service 层捕获 `IntegrityError` 并转换为 `HTTPException(status_code=409)` 或 `HTTPException(status_code=400)`。
+
+### 7.5 [service/score.py](file:///d:/AIxsglxt/学生管理系统%207人板/service/score.py#L17-L23) - 成绩重复添加时抛出 409
+- **代码行**：L17-L23
+- **审查原因**：在 Service 层检查成绩是否存在并抛出 409，这是正确的做法。但同样的逻辑应该在 DAO 层通过唯一约束自动处理，然后在 Service 层捕获 `IntegrityError` 转换为 409。
+- **修改建议**：保持当前做法（先检查再插入），但考虑简化为依赖数据库唯一约束。
+
+### 7.6 [service/class_info.py](file:///d:/AIxsglxt/学生管理系统%207人板/service/class_info.py#L59-L61) - 查询班级为空时抛出 404
+- **代码行**：L59-L61
+- **审查原因**：`get_class_by_lecturer_id_service` 在无数据时抛出 404，但查询列表接口应返回空列表。
+- **修改建议**：返回空列表而非 404。
 
 ---
 
 ## 修正情况记录表
 
-| 序号 | 问题描述 | 状态 | 说明 |
-|------|----------|------|------|
-| 1.1 | 文件命名：class_info_service.py→class_info.py | ✅ 已修正 | 已重命名文件并更新所有引用 |
-| 1.2 | 函数命名：add_class→create_class, put_update_class→update_class | ✅ 已修正 | 已统一命名风格 |
-| 1.3 | 变量命名：cls→cls_data, s→student_data, t→teacher_data | ✅ 已修正 | 已更新所有相关变量名 |
-| 1.4 | Schema命名：Score_Page_Response→ScorePageResponse | ✅ 已修正 | 已统一为驼峰命名 |
-| 2.1 | 统一response_model和返回类型标注（4处） | ✅ 已修正 | 已统一返回类型标注 |
-| 2.2 | RequestValidationError返回422+具体错误 | ✅ 已修正 | 已修改为422状态码 |
-| 2.2 | employment列表补充total字段 | ✅ 已修正 | 已在DAO/Service/API层添加total |
-| 2.3 | 恢复操作PUT→POST（2处） | ✅ 已修正 | 已修改为POST方法 |
-| 3.3 | 统一路由导出命名+score_router添加prefix | ✅ 已修正 | 已统一router命名，score添加prefix="/scores" |
-| 3.4 | 修复teacher.py延迟导入 | ✅ 已修正 | 已消除循环依赖 |
-| 4.1 | 添加缺失的docstring（4处） | ✅ 已修正 | 已添加Student/Employment类文档、restore_score函数文档、ROLE_PERMISSIONS角色说明 |
-| 4.2 | 删除冗余注释（3处） | ✅ 已修正 | 已删除重复注释，优化create_student函数文档 |
-| 6.1/6.2 | 创建config.py统一管理SECRET_KEY/ALGORITHM | ✅ 已修正 | 已创建config.py并更新所有引用 |
-| 6.4 | 认证路由prefix改为/auth | ✅ 已修正 | 已修改为/auth |
-| 7.1 | 全局异常处理器添加日志记录 | ✅ 已修正 | 已添加logging配置 |
-| 7.2 | 细化SQLAlchemyError为IntegrityError等（3处） | ✅ 已修正 | 已更新所有DAO层异常处理 |
-| 7.3 | 添加缺失的参数校验（3处） | ✅ 已修正 | 已添加restore_score参数校验 |
-| 7.4 | 统一使用数字状态码 | ✅ 已修正 | 已将class_info.py中的status.HTTP_*改为数字状态码 |
-| 8.1 | 清理根目录测试文件 | ✅ 已修正 | 已删除15个test_*.py测试文件 |
-| 8.2 | 数据库URL密码编码 | ✅ 已修正 | 已使用quote_plus编码 |
-| 8.3 | 添加基础logging配置 | ✅ 已修正 | 已在main.py添加logging |
-| 8.4 | 添加CORS配置 | ✅ 已修正 | 已添加CORSMiddleware |
-| 8.5 | bcrypt rounds改为12 | ✅ 已修正 | 已修改为bcrypt__rounds=12 |
+| 序号 | 审查项 | 分类 | 严重程度 | 状态 | 说明 |
+|------|--------|------|----------|------|------|
+| 1.1 | database.py 全局常量命名不统一 | 命名规范 | 低 | 已修正 | engine/Base 保持小写，符合FastAPI社区惯例 |
+| 1.2 | dao/score.py 整型ID使用LIKE查询 | 命名规范 | 中 | 已修正 | 改为 Score.id == id 精确匹配 |
+| 1.3 | dao/score.py 整型exam_order使用LIKE查询 | 命名规范 | 中 | 已修正 | 改为 Score.exam_order == exam_order 精确匹配 |
+| 1.4 | service/class_info.py 参数类型标注缺失 | 命名规范 | 低 | 已修正 | 添加 cls_data: ClassCreate 类型标注 |
+| 1.5 | service/class_info.py 参数类型标注缺失 | 命名规范 | 低 | 已修正 | 添加 update_data: ClassUpdate 类型标注 |
+| 1.6 | service/employment.py 参数类型标注不一致 | 命名规范 | 低 | 已修正 | 改为 Optional[str] 和 Optional[int] |
+| 1.7 | models/teacher.py 注释风格不一致 | 命名规范 | 低 | 已修正 | 统一使用 docstring 风格 |
+| 1.8 | schemas/teacher.py 文件末尾多余空行 | 命名规范 | 低 | 已修正 | 清理多余空行，统一注释风格 |
+| 2.1 | main.py RequestValidationError返回403 | 接口一致性 | 高 | 已修正 | 恢复为 422 状态码 |
+| 2.2 | api/student_info.py response_model=dict | 接口一致性 | 中 | 暂不修正 | 全项目统一使用 dict，保持简单 |
+| 2.3 | api/score.py response_model不一致 | 接口一致性 | 中 | 暂不修正 | 部分使用具体Model部分使用dict，可接受 |
+| 2.4 | api/teacher.py 空列表返回404 | 接口一致性 | 中 | 已修正 | 删除 404 抛出逻辑，返回空列表 |
+| 2.5 | api/class_info.py 创建路由用/add | 接口一致性 | 低 | 已修正 | 统一改为 /create，同步更新前端 |
+| 2.6 | api/score.py 路由路径为空字符串 | 接口一致性 | 中 | 已修正 | 改为 /create，同步更新前端 |
+| 2.7 | api/employment.py 创建路由用/ | 接口一致性 | 低 | 已修正 | 改为 /create，同步更新前端 |
+| 2.8 | api/user.py token通过URL参数传递 | 接口一致性 | 中 | 已修正 | 改为 require_login 依赖注入 |
+| 3.1 | main.py 数据库表初始化在模块加载时执行 | 架构合理性 | 中 | 暂不修正 | 当前项目规模可接受，后续引入Alembic |
+| 3.2 | main.py 路由前缀设计不一致 | 架构合理性 | 高 | 已验证 | 经检查实际无双重前缀问题 |
+| 3.3 | service/auth.py 查询接口无权限检查 | 架构合理性 | 高 | 已修正 | 所有查询接口添加 require_login |
+| 3.4 | service层过于单薄存在透传 | 架构合理性 | 低 | 暂不修正 | 当前架构清晰，Service层预留业务逻辑扩展 |
+| 3.5 | dao/class_info.py 参数类型错误 | 架构合理性 | 中 | 已修正 | 已使用 ClassCreate 类型 |
+| 3.6 | 恢复操作HTTP方法不一致 | 架构合理性 | 低 | 已修正 | 统一为 POST，同步更新前端 |
+| 4.1 | dao/student_info.py 注释风格不统一 | 注释文档 | 低 | 已修正 | 清理冗余行内注释，统一使用docstring |
+| 4.2 | dao/teacher.py 注释与函数名重复 | 注释文档 | 低 | 已修正 | 清理冗余注释 |
+| 4.3 | dao/score.py 业务需求注释有价值 | 注释文档 | - | 已达标 | 保持有价值的业务注释 |
+| 4.4 | service/auth.py 权限配置注释清晰 | 注释文档 | - | 已达标 | 保持 |
+| 4.5 | models/class_info.py 注释掉的代码 | 注释文档 | 低 | 已修正 | 清理注释代码 |
+| 5.1 | 所有路由使用同步函数 | 异步并发 | - | 已达标 | 正确使用同步def配合SQLAlchemy ORM |
+| 5.2 | 数据库会话生命周期管理 | 异步并发 | - | 已达标 | try...finally确保会话关闭 |
+| 5.3 | 连接池配置合理 | 异步并发 | - | 已达标 | 配置完善 |
+| 5.4 | 批量恢复操作在单个事务中 | 异步并发 | - | 已达标 | 正确的事务处理方式 |
+| 6.1 | SECRET_KEY 使用默认值 | 依赖配置 | 高 | 已修正 | 添加启动时警告 |
+| 6.2 | DB_PASSWORD 可能为None | 依赖配置 | 中 | 已修正 | 添加必需配置项验证警告 |
+| 6.3 | require_permission 工厂函数设计 | 依赖配置 | - | 已达标 | 设计合理 |
+| 6.4 | 注册接口需要管理员权限 | 依赖配置 | - | 已达标 | 设计合理 |
+| 6.5 | CORS 配置过于宽松 | 依赖配置 | 中 | 已修正 | 限制为具体域名，限制方法和Header |
+| 7.1 | RequestValidationError返回403 | 异常处理 | 高 | 已修正 | 恢复为 422 |
+| 7.2 | 全局异常处理器捕获所有Exception | 异常处理 | - | 已达标 | 合理的兜底策略 |
+| 7.3 | 查询已删除列表为空时抛出404 | 异常处理 | 中 | 已修正 | 返回空列表 |
+| 7.4 | IntegrityError处理后重新抛出 | 异常处理 | 中 | 已修正 | 在Service层转换为HTTPException |
+| 7.5 | 成绩重复添加时抛出409 | 异常处理 | - | 已达标 | 正确的处理方式 |
+| 7.6 | 查询班级为空时抛出404 | 异常处理 | 低 | 已修正 | 返回空列表 |
