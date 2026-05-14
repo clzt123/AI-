@@ -1,16 +1,24 @@
-# 这是一个示例 Python 脚本。
+from fastapi import FastAPI
+from api.student_routes import router
+from core.config import settings
 
-# 按 Shift+F10 执行或将其替换为您的代码。
-# 按 双击 Shift 在所有地方搜索类、文件、工具窗口、操作和设置。
+app = FastAPI(
+    title="Dify HTTP Request Service",
+    description="用于对接 Dify 的后端服务，提供数据库 CRUD 和动态 SQL 查询功能",
+    version="1.0.0"
+)
 
+app.include_router(router, prefix="/api/v1/osa")
 
-def print_hi(name):
-    # 在下面的代码行中使用断点来调试脚本。
-    print(f'Hi, {name}')  # 按 Ctrl+F8 切换断点。
+@app.get("/")
+def health_check():
+    return {"status": "ok", "service": "Dify HTTP Request Service"}
 
-
-# 按装订区域中的绿色按钮以运行脚本。
-if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# 访问 https://www.jetbrains.com/help/pycharm/ 获取 PyCharm 帮助
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(
+        "main:app",
+        host=settings.APP_HOST,
+        port=settings.APP_PORT,
+        reload=settings.DEBUG
+    )
