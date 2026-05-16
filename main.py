@@ -1,16 +1,26 @@
-# 这是一个示例 Python 脚本。
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from api import course, event
 
-# 按 Shift+F10 执行或将其替换为您的代码。
-# 按 双击 Shift 在所有地方搜索类、文件、工具窗口、操作和设置。
+app = FastAPI(title="粤教服务智能客服API", version="1.0.0")
 
+# 配置CORS（允许Dify跨域调用）
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # 生产环境替换为你的Dify域名
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-def print_hi(name):
-    # 在下面的代码行中使用断点来调试脚本。
-    print(f'Hi, {name}')  # 按 Ctrl+F8 切换断点。
+# 注册路由
+app.include_router(course.router, prefix="/api/course", tags=["课程项目"])
+app.include_router(event.router, prefix="/api/event", tags=["活动讲座"])
 
+@app.get("/")
+def read_root():
+    return {"message": "粤教服务智能客服API运行正常"}
 
-# 按装订区域中的绿色按钮以运行脚本。
-if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# 访问 https://www.jetbrains.com/help/pycharm/ 获取 PyCharm 帮助
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
