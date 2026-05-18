@@ -24,8 +24,8 @@ const AGENT_CONFIG = {
     }
 };
 
-// 后端API地址（修改为5000端口）
-const API_BASE_URL = 'http://localhost:5000/api';
+// 后端API地址（修改为8080端口）
+const API_BASE_URL = 'http://localhost:8080/api';
 
 // 存储用户信息的key
 const USER_INFO_KEY = 'dify_user_info';
